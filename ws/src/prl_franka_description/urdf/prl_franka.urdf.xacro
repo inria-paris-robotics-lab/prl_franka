@@ -1,0 +1,139 @@
+<?xml version='1.0' encoding='utf-8'?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="fr3">
+
+  <xacro:include filename="$(find franka_description)/robots/common/franka_robot.xacro"/>
+
+  <!--
+    DEPRECATION NOTICE
+    argument arm_id is no longer supported and will be removed in the future.
+    This argument is ignored.
+  -->
+  <xacro:arg name="arm_id" default="fr3" />
+
+  <!-- The prefix of the robot -->
+  <xacro:arg name="arm_prefix" default="" />
+
+  <!-- Multi-arm setup? -->
+  <xacro:arg name="multi_arm" default="false" />
+
+  <!-- Don't print a prefix for joints, visuals, and links? -->
+  <xacro:arg name="no_prefix" default="false"/>
+
+  <!-- Should an end-effector be mounted at the flange?" -->
+  <xacro:arg name="hand" default="true" />
+
+  <!-- Which end-effector would be mounted at the flange?" -->
+  <xacro:arg name="ee_id" default="franka_hand" />
+
+  <!-- Where is the end-effector connected to, if different from the robot flange?  -->
+  <xacro:arg name="special_connection" default="" />
+
+  <!-- Position offset between ee and parent frame -->
+  <xacro:arg name="xyz_ee" default="0 0 0" />
+
+  <!-- Rotation offset between ee and parent frame -->
+  <xacro:arg name="rpy_ee" default= "0 0 ${-pi/4}" />
+
+  <!-- Position offset between ee frame and tcp frame -->
+  <xacro:arg name="tcp_xyz" default="0 0 0.1034" />
+
+  <!-- Rotation offset between ee frame and tcp frame -->
+  <xacro:arg name="tcp_rpy" default="0 0 0" />
+
+  <!-- Safety distance for the collision capsules -->
+  <xacro:arg name="safety_distance" default="0.03" />
+
+  <!-- Should self-collision be enabled? -->
+  <xacro:arg name="with_sc" default="false" />
+
+  <!-- Is the robot being controlled with ros2_control?" -->
+  <xacro:arg name="ros2_control" default="false" />
+
+  <!-- IP address or hostname of the robot" -->
+  <xacro:arg name="robot_ip" default="" />
+
+  <!-- Should a fake hardware be used? -->
+  <xacro:arg name="use_fake_hardware" default="false" />
+
+  <!-- Should fake sensors be used? -->
+  <xacro:arg name="fake_sensor_commands" default="false" />
+
+  <!-- Should the robot be spawned in Gazebo?" -->
+  <xacro:arg name="gazebo" default="false" />
+
+  <!-- Should the robot be spawned in Gazebo with effort interfaces?" -->
+  <xacro:arg name="gazebo_effort" default="false" />
+
+  <!-- Name of the description package -->
+  <xacro:arg name="description_pkg" default="franka_description" />
+  
+  <!-- Append an underscore to the user-provided prefix, if non-empty. -->
+  <xacro:property name="prefix" value="$(arg arm_prefix)"/>
+  <xacro:property name="modified_prefix" value="${prefix + '_' if prefix else ''}"/>
+
+
+  <!-- Include table-->
+  <link name="base_link" />
+  <joint name="base_to_table" type="fixed">
+    <parent link="base_link"/>
+    <child link="table_link"/>
+    <origin xyz="0 0 0.68" rpy="0 0 0"/>
+  </joint>
+
+  <material name="Blue">
+    <color rgba="${0/255} ${30/255} ${70/255} 1.0"/>
+  </material>
+
+  <xacro:arg name="table_scale" default="1 1 1"/>
+
+  <link name="table_link">
+      <visual>
+          <geometry>
+              <mesh filename="file://$(find prl_franka_description)/meshes/table.stl" scale="0.001 0.001 0.001"/>
+          </geometry>
+          <material name="Blue"/>
+      </visual>
+      <collision>
+          <geometry>
+              <mesh filename="file://$(find prl_franka_description)/meshes/table.stl" scale="0.001 0.001 0.001"/>
+          </geometry>
+      </collision>
+      <inertial>
+          <mass value="10.0"/>
+          <origin xyz="0 0 0" rpy="0 0 0"/>
+          <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+      </inertial>
+  </link>
+
+  <xacro:if value="$(arg gazebo)">
+    <link name="$(arg arm_id)_attachment_link"/>
+  </xacro:if>
+  <joint name="$(arg arm_id)_attachment_joint" type="fixed">
+    <parent link="table_link"/>
+    <child link="$(arg arm_id)_attachment_link"/>
+    <origin xyz="-0.6 0 0.095" rpy="0 0 0"/>
+  </joint>
+  
+  <xacro:franka_robot arm_id="fr3"
+                      joint_limits="${xacro.load_yaml('$(find franka_description)/robots/fr3/joint_limits.yaml')}"
+                      inertials="${xacro.load_yaml('$(find franka_description)/robots/fr3/inertials.yaml')}"
+                      kinematics="${xacro.load_yaml('$(find franka_description)/robots/fr3/kinematics.yaml')}"
+                      dynamics="${xacro.load_yaml('$(find franka_description)/robots/fr3/dynamics.yaml')}"
+                      gazebo="$(arg gazebo)"
+                      hand="$(arg hand)"
+                      ee_id="$(arg ee_id)"
+                      with_sc="$(arg with_sc)"
+                      ros2_control="$(arg ros2_control)"
+                      robot_ip="$(arg robot_ip)"
+                      use_fake_hardware="$(arg use_fake_hardware)"
+                      fake_sensor_commands="$(arg fake_sensor_commands)"
+                      gazebo_effort="$(arg gazebo_effort)"
+                      no_prefix="$(arg no_prefix)"
+                      arm_prefix="${modified_prefix}"
+                      parent="$(arg arm_id)_attachment_link"
+                      connected_to="$(arg arm_id)_attachment_link"
+                      xyz="0 0 0"
+                      rpy="0 0 0">
+  </xacro:franka_robot>
+
+</robot>
