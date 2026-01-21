@@ -30,7 +30,6 @@ from controller_manager.launch_utils import (
 )
 
 
-
 def launch_setup(
     context: LaunchContext, *args, **kwargs
 ) -> list[LaunchDescriptionEntity]:
@@ -246,11 +245,12 @@ def launch_setup(
         value_type=str,
     )
 
-
     robot_state_publisher_node = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
-        parameters=[{"robot_description": robot_description, "use_sim_time": use_sim_time}],
+        parameters=[
+            {"robot_description": robot_description, "use_sim_time": use_sim_time}
+        ],
         output="screen",
     )
 
@@ -258,7 +258,7 @@ def launch_setup(
         package="joint_state_publisher",
         executable="joint_state_publisher",
         parameters=[
-            {   
+            {
                 "use_sim_time": use_sim_time,
                 "source_list": [
                     "franka/joint_states",
@@ -276,7 +276,6 @@ def launch_setup(
         arguments=["--display-config", rviz_config_path],
         condition=IfCondition(use_rviz),
     )
-
 
     return [
         franka_hardware_launch,
@@ -447,6 +446,5 @@ def generate_launch_description():
     ]
 
     return LaunchDescription(
-        declared_arguments
-        + [OpaqueFunction(function=launch_setup)]
+        declared_arguments + [OpaqueFunction(function=launch_setup)]
     )

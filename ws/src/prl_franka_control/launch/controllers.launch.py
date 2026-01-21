@@ -4,9 +4,11 @@ from launch.actions import DeclareLaunchArgument, OpaqueFunction, RegisterEventH
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch.event_handlers import OnProcessExit
 from launch_ros.substitutions import FindPackageShare
+
+
 def controller_spawner(controllers, controller_params, active=True):
     inactive_flags = ["--inactive"] if not active else []
-    spawners=[]
+    spawners = []
     for controller in controllers:
         spawners.append(
             Node(
@@ -17,7 +19,8 @@ def controller_spawner(controllers, controller_params, active=True):
                     "/controller_manager",
                     "--controller-manager-timeout",
                     "10",
-                    "--param-file", controller_params,
+                    "--param-file",
+                    controller_params,
                 ]
                 + inactive_flags
                 + [controller],
@@ -26,9 +29,12 @@ def controller_spawner(controllers, controller_params, active=True):
         print("Spawning controllers: ", controller, " Active: ", active)
     return spawners
 
+
 def launch_setup(context):
     # Arguments
-    activate_joint_controller = LaunchConfiguration("activate_joint_controller").perform(context)
+    activate_joint_controller = LaunchConfiguration(
+        "activate_joint_controller"
+    ).perform(context)
     active_controller = LaunchConfiguration("active_controller").perform(context)
     loaded_controllers = LaunchConfiguration("loaded_controllers").perform(context)
     controller_params = LaunchConfiguration("controller_file").perform(context)
@@ -47,7 +53,8 @@ def launch_setup(context):
             "--controller-manager-timeout",
             "10",
             "joint_state_broadcaster",
-            "--param-file", controller_params,
+            "--param-file",
+            controller_params,
         ],
     )
     controllers_active = []
@@ -58,13 +65,12 @@ def launch_setup(context):
         for controller in controllers_to_activate:
             controllers_active.append(controller)
         for controller in controllers_to_load:
-            if controller not in controllers_active :
+            if controller not in controllers_active:
                 controllers_inactive.append(controller)
 
-    controller_spawners = (
-        controller_spawner(controllers_active,controller_params)+
-        controller_spawner(controllers_inactive,controller_params, active=False)
-    )
+    controller_spawners = controller_spawner(
+        controllers_active, controller_params
+    ) + controller_spawner(controllers_inactive, controller_params, active=False)
     print("Controllers to activate: ", controller_spawners)
 
     return [
@@ -76,6 +82,7 @@ def launch_setup(context):
             )
         ),
     ]
+
 
 def generate_launch_description():
     declared_arguments = [
@@ -96,12 +103,16 @@ def generate_launch_description():
         ),
         DeclareLaunchArgument(
             "controller_file",
-            default_value=PathJoinSubstitution([
-                FindPackageShare('prl_franka_control'),
-                'config',
-                'controllers.yaml',
-            ]),
+            default_value=PathJoinSubstitution(
+                [
+                    FindPackageShare("prl_franka_control"),
+                    "config",
+                    "controllers.yaml",
+                ]
+            ),
             description="Path to the controller configuration file.",
         ),
     ]
-    return LaunchDescription(declared_arguments + [OpaqueFunction(function=launch_setup)])
+    return LaunchDescription(
+        declared_arguments + [OpaqueFunction(function=launch_setup)]
+    )

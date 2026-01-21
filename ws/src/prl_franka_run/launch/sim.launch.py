@@ -19,6 +19,7 @@ import os
 import yaml
 from ament_index_python.packages import get_package_share_directory
 
+
 def launch_setup(
     context: LaunchContext, *args, **kwargs
 ) -> list[LaunchDescriptionEntity]:
@@ -33,15 +34,20 @@ def launch_setup(
     gz_world_path_str = context.perform_substitution(gz_world_path)
     use_ft_sensor_bool = context.perform_substitution(use_ft_sensor).lower() == "true"
     ee_id_str = context.perform_substitution(ee_id).lower()
-    controller_param_file = os.path.join(get_package_share_directory('prl_franka_control'), 'config', 'controllers.yaml')
-    config_controller_path = os.path.join(get_package_share_directory('prl_franka_control'), 'config', 'controller_setup.yaml')
-    with open(config_controller_path, 'r') as setup_file:
+    controller_param_file = os.path.join(
+        get_package_share_directory("prl_franka_control"), "config", "controllers.yaml"
+    )
+    config_controller_path = os.path.join(
+        get_package_share_directory("prl_franka_control"),
+        "config",
+        "controller_setup.yaml",
+    )
+    with open(config_controller_path, "r") as setup_file:
         config_controller = yaml.safe_load(setup_file)
-    all_controllers = config_controller.get('controllers') or {}
+    all_controllers = config_controller.get("controllers") or {}
     # YAML may omit lists which yields None; default to empty lists to avoid join errors
-    activate_controllers = all_controllers.get('active_controllers') or []
-    loaded_controllers = all_controllers.get('inactive_controllers') or []
-
+    activate_controllers = all_controllers.get("active_controllers") or []
+    loaded_controllers = all_controllers.get("inactive_controllers") or []
 
     gazebo_empty_world = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -94,20 +100,23 @@ def launch_setup(
     print("Active controllers: ", active_controllers)
     print("Inactive controllers: ", inactive_controller)
     controller_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([
-            PathJoinSubstitution([
-            FindPackageShare('prl_franka_control'),
-            'launch',
-            'controllers.launch.py',
-            ])
-        ]),
+        PythonLaunchDescriptionSource(
+            [
+                PathJoinSubstitution(
+                    [
+                        FindPackageShare("prl_franka_control"),
+                        "launch",
+                        "controllers.launch.py",
+                    ]
+                )
+            ]
+        ),
         launch_arguments={
-            'active_controller': str(active_controllers),
-            'loaded_controllers': str(inactive_controller),
-            'controller_file':  str(controller_param_file),
+            "active_controller": str(active_controllers),
+            "loaded_controllers": str(inactive_controller),
+            "controller_file": str(controller_param_file),
         }.items(),
     )
-
 
     return [
         gazebo_empty_world,

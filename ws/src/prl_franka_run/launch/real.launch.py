@@ -18,6 +18,7 @@ from controller_manager.launch_utils import (
 import os
 import yaml
 
+
 def launch_setup(
     context: LaunchContext, *args, **kwargs
 ) -> list[LaunchDescriptionEntity]:
@@ -25,12 +26,14 @@ def launch_setup(
     disable_collision_safety = LaunchConfiguration("disable_collision_safety")
     franka_controllers_params = LaunchConfiguration("franka_controllers_params")
     franka_controllers_setup = LaunchConfiguration("franka_controllers_setup")
-    with open(os.path.join(franka_controllers_setup.perform(context)), 'r') as setup_file:
+    with open(
+        os.path.join(franka_controllers_setup.perform(context)), "r"
+    ) as setup_file:
         config_controller = yaml.safe_load(setup_file)
-    all_controllers = config_controller.get('controllers') or {}
+    all_controllers = config_controller.get("controllers") or {}
     # YAML may omit lists which yields None; default to empty lists to avoid join errors
-    activate_controllers = all_controllers.get('active_controllers') or []
-    loaded_controllers = all_controllers.get('inactive_controllers') or []
+    activate_controllers = all_controllers.get("active_controllers") or []
+    loaded_controllers = all_controllers.get("inactive_controllers") or []
     disable_collision_safety_bool = (
         context.perform_substitution(disable_collision_safety).lower() == "true"
     )
@@ -58,24 +61,27 @@ def launch_setup(
         on_exit=Shutdown(),
     )
 
-
     ###### Controllers ######
     inactive_controller = ",".join(loaded_controllers)
     active_controllers = ",".join(activate_controllers)
     print("Active controllers: ", active_controllers)
     print("Inactive controllers: ", inactive_controller)
     controller_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([
-            PathJoinSubstitution([
-            FindPackageShare('prl_franka_control'),
-            'launch',
-            'controllers.launch.py',
-            ])
-        ]),
+        PythonLaunchDescriptionSource(
+            [
+                PathJoinSubstitution(
+                    [
+                        FindPackageShare("prl_franka_control"),
+                        "launch",
+                        "controllers.launch.py",
+                    ]
+                )
+            ]
+        ),
         launch_arguments={
-            'active_controller': str(active_controllers),
-            'loaded_controllers': str(inactive_controller),
-            'controller_file':  str(franka_controllers_params.perform(context)),
+            "active_controller": str(active_controllers),
+            "loaded_controllers": str(inactive_controller),
+            "controller_file": str(franka_controllers_params.perform(context)),
         }.items(),
     )
 
@@ -125,7 +131,7 @@ def launch_setup(
         controller_manager_node,
         franka_gripper_launch,
         # disable_franka_collisions_node,
-        controller_launch,        
+        controller_launch,
     ]
 
 

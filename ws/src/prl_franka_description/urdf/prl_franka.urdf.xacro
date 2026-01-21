@@ -66,7 +66,7 @@
 
   <!-- Name of the description package -->
   <xacro:arg name="description_pkg" default="franka_description" />
-  
+
   <!-- Append an underscore to the user-provided prefix, if non-empty. -->
   <xacro:property name="prefix" value="$(arg arm_prefix)"/>
   <xacro:property name="modified_prefix" value="${prefix + '_' if prefix else ''}"/>
@@ -113,7 +113,7 @@
     <child link="$(arg arm_id)_attachment_link"/>
     <origin xyz="-0.6 0 0.095" rpy="0 0 0"/>
   </joint>
-  
+
   <xacro:franka_robot arm_id="fr3"
                       joint_limits="${xacro.load_yaml('$(find franka_description)/robots/fr3/joint_limits.yaml')}"
                       inertials="${xacro.load_yaml('$(find franka_description)/robots/fr3/inertials.yaml')}"
