@@ -5,6 +5,7 @@ from launch.actions import (
     OpaqueFunction,
     Shutdown,
     RegisterEventHandler,
+    IfCondition,
 )
 from launch.launch_description_entity import LaunchDescriptionEntity
 from launch.launch_description_sources import PythonLaunchDescriptionSource
@@ -44,6 +45,8 @@ def launch_setup(
             "default_controllers.yaml",
         ]
     )
+    ee_id = LaunchConfiguration("ee_id").perform(context)
+    franka_hand = ee_id == "franka_hand"
 
     controller_manager_node = Node(
         package="controller_manager",
@@ -100,37 +103,12 @@ def launch_setup(
         launch_arguments={
             "robot_ip": robot_ip,
         }.items(),
+        condition=IfCondition(franka_hand),
     )
-
-    # franka_safety_params_file = (
-    #     "franka_collisions_unsafe.yaml"
-    #     if disable_collision_safety_bool
-    #     else "franka_collisions_default.yaml"
-    # )
-
-    # disable_franka_collisions_node = Node(
-    #     package="agimus_demos_common",
-    #     executable="disable_franka_collisions",
-    #     name="disable_franka_collisions",
-    #     output="screen",
-    #     # If set to `true`, change values to custom ones. If `false` use default.
-    #     # Robot remembers previous parameters, so we need to change values every time.
-    #     parameters=[
-    #         PathJoinSubstitution(
-    #             [
-    #                 FindPackageShare("agimus_demos_common"),
-    #                 "config",
-    #                 "franka",
-    #                 franka_safety_params_file,
-    #             ]
-    #         )
-    #     ],
-    # )
 
     return [
         controller_manager_node,
         franka_gripper_launch,
-        # disable_franka_collisions_node,
         controller_launch,
     ]
 
@@ -174,6 +152,11 @@ def generate_launch_description():
                 ]
             ),
             description="Path to the yaml file used to define which controllers to load and activate.",
+        ),
+        DeclareLaunchArgument(
+            "ee_id",
+            default_value="franka_hand",
+            description="Name of the end effector used.",
         ),
     ]
 

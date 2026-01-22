@@ -7,37 +7,14 @@
 # Not all parameters are currently used but are included for future compatibility.
 # Ensure each robot has a unique namespace to prevent topic conflicts.
 
-ROBOT1: # Arbitrary identifier for the first robot (a Mnemonic)
+ROBOT: # Arbitrary identifier for the first robot (a Mnemonic)
   arm_id: "fr3" # Reserved for future use, unique arm (i.e. robot model) identifier
   arm_prefix: "" # Reserved for future use (e.g., robot unique prefix)
-  fake_sensor_commands: "false" # Enable fake sensor commands for simulation
-  joint_state_rate: 30 # Publishing rate for joint states (Hz)
   namespace: "" # Namespace for robot, any string (empty string allowed - meaningful names recommended)
   robot_ip: "172.17.1.5" # Robot’s IP address or hostname
-  urdf_file: "prl_franka.urdf.xacro" # Relative path to URDF in franka_description/robots
-  use_fake_hardware: "false" # Use simulated hardware ("true" or "false")
-  use_rviz: "true" # Launch RViz if "true" (single instance for all namespaces)
   load_gripper: "true" # Enable Franka Gripper ("true" or "false")
-# Uncomment the following lines to add more robots in Namespaces
-# ROBOT2:
-#   arm_id: ""
-#   arm_prefix: ""
-#   fake_sensor_commands: "false"
-#   joint_state_rate: 30
-#   load_gripper: "false"
-#   namespace: "NS_2"
-#   robot_ip: "172.16.0.4"
-#   urdf_file: "fr3/fr3.urdf.xacro"
-#   use_fake_hardware: "false"
-#   use_rviz: "false"
-# ROBOT3:
-#   arm_id: ""
-#   arm_prefix: ""
-#   fake_sensor_commands: "false"
-#   joint_state_rate: 30
-#   load_gripper: "false"
-#   namespace: "NS_3"
-#   robot_ip: "172.16.0.5"
-#   urdf_file: "fr3/fr3.urdf.xacro"
-#   use_fake_hardware: "false"
-#   use_rviz: "false"
+  end_effector_pose:
+    xyz: [0.0, 0.0, 0.01] # End-effector position offset [x, y, z] in meters
+    rpy: [0.0, 0.0, 0.0]   # End-effector orientation offset [roll, pitch, yaw] in radians
+  ee_id: "ball" # End-effector with which the robot is equipped ("franka_hand", "ball", or "none")
+  self_collision_safety: "true" # Disable self-collision safety checks ("true" or "false")

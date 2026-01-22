@@ -9,7 +9,7 @@ repos:
       - id: check-xml
       - id: check-merge-conflict
       - id: check-added-large-files
-        args: ['--maxkb=1000']
+        args: ['--maxkb=10000']
 
   - repo: https://github.com/pre-commit/mirrors-clang-format
     rev: v17.0.6

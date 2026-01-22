@@ -3,11 +3,6 @@
 
   <xacro:include filename="$(find franka_description)/robots/common/franka_robot.xacro"/>
 
-  <!--
-    DEPRECATION NOTICE
-    argument arm_id is no longer supported and will be removed in the future.
-    This argument is ignored.
-  -->
   <xacro:arg name="arm_id" default="fr3" />
 
   <!-- The prefix of the robot -->
@@ -114,26 +109,52 @@
     <origin xyz="-0.6 0 0.095" rpy="0 0 0"/>
   </joint>
 
-  <xacro:franka_robot arm_id="fr3"
-                      joint_limits="${xacro.load_yaml('$(find franka_description)/robots/fr3/joint_limits.yaml')}"
-                      inertials="${xacro.load_yaml('$(find franka_description)/robots/fr3/inertials.yaml')}"
-                      kinematics="${xacro.load_yaml('$(find franka_description)/robots/fr3/kinematics.yaml')}"
-                      dynamics="${xacro.load_yaml('$(find franka_description)/robots/fr3/dynamics.yaml')}"
-                      gazebo="$(arg gazebo)"
-                      hand="$(arg hand)"
-                      ee_id="$(arg ee_id)"
-                      with_sc="$(arg with_sc)"
-                      ros2_control="$(arg ros2_control)"
-                      robot_ip="$(arg robot_ip)"
-                      use_fake_hardware="$(arg use_fake_hardware)"
-                      fake_sensor_commands="$(arg fake_sensor_commands)"
-                      gazebo_effort="$(arg gazebo_effort)"
-                      no_prefix="$(arg no_prefix)"
-                      arm_prefix="${modified_prefix}"
-                      parent="$(arg arm_id)_attachment_link"
-                      connected_to="$(arg arm_id)_attachment_link"
-                      xyz="0 0 0"
-                      rpy="0 0 0">
-  </xacro:franka_robot>
-
+  <xacro:if value="${'$(arg ee_id)' == 'franka_hand'}">
+    <xacro:franka_robot arm_id="$(arg arm_id)"
+                        joint_limits="${xacro.load_yaml('$(find franka_description)/robots/$(arg arm_id)/joint_limits.yaml')}"
+                        inertials="${xacro.load_yaml('$(find franka_description)/robots/$(arg arm_id)/inertials.yaml')}"
+                        kinematics="${xacro.load_yaml('$(find franka_description)/robots/$(arg arm_id)/kinematics.yaml')}"
+                        dynamics="${xacro.load_yaml('$(find franka_description)/robots/$(arg arm_id)/dynamics.yaml')}"
+                        gazebo="$(arg gazebo)"
+                        hand="$(arg hand)"
+                        ee_id="$(arg ee_id)"
+                        with_sc="$(arg with_sc)"
+                        ros2_control="$(arg ros2_control)"
+                        robot_ip="$(arg robot_ip)"
+                        use_fake_hardware="$(arg use_fake_hardware)"
+                        fake_sensor_commands="$(arg fake_sensor_commands)"
+                        gazebo_effort="$(arg gazebo_effort)"
+                        no_prefix="$(arg no_prefix)"
+                        arm_prefix="${modified_prefix}"
+                        parent="$(arg arm_id)_attachment_link"
+                        connected_to="$(arg arm_id)_attachment_link"
+                        xyz="0 0 0"
+                        rpy="0 0 0">
+    </xacro:franka_robot>
+  </xacro:if>
+  <xacro:if value="${'$(arg ee_id)' == 'ball'}">
+    <xacro:include filename="$(find prl_franka_description)/urdf/end_effectors/ball/ball.urdf.xacro"/>
+    <xacro:franka_robot arm_id="$(arg arm_id)"
+                        joint_limits="${xacro.load_yaml('$(find franka_description)/robots/$(arg arm_id)/joint_limits.yaml')}"
+                        inertials="${xacro.load_yaml('$(find franka_description)/robots/$(arg arm_id)/inertials.yaml')}"
+                        kinematics="${xacro.load_yaml('$(find franka_description)/robots/$(arg arm_id)/kinematics.yaml')}"
+                        dynamics="${xacro.load_yaml('$(find franka_description)/robots/$(arg arm_id)/dynamics.yaml')}"
+                        gazebo="$(arg gazebo)"
+                        hand="false"
+                        ee_id=""
+                        with_sc="$(arg with_sc)"
+                        ros2_control="$(arg ros2_control)"
+                        robot_ip="$(arg robot_ip)"
+                        use_fake_hardware="$(arg use_fake_hardware)"
+                        fake_sensor_commands="$(arg fake_sensor_commands)"
+                        gazebo_effort="$(arg gazebo_effort)"
+                        no_prefix="$(arg no_prefix)"
+                        arm_prefix="${modified_prefix}"
+                        parent="$(arg arm_id)_attachment_link"
+                        connected_to="$(arg arm_id)_attachment_link"
+                        xyz="0 0 0"
+                        rpy="0 0 0">
+    </xacro:franka_robot>
+    <xacro:ball_effector parent="${modified_prefix}$(arg arm_id)_link8" arm_prefix="${modified_prefix}_$(arg arm_id)" xyz_ee="$(arg xyz_ee)" rpy_ee="$(arg rpy_ee)" tcp_xyz="$(arg tcp_xyz)" tcp_rpy="$(arg tcp_rpy)"/>
+  </xacro:if>
 </robot>
