@@ -33,7 +33,7 @@ def launch_setup(context):
 
     # Config file
     moveit_config = (
-        MoveItConfigsBuilder(robot_name="mantis", package_name="prl_franka_moveit")
+        MoveItConfigsBuilder(robot_name="franka", package_name="prl_franka_moveit")
         .robot_description_semantic(Path("config") / "fr3.srdf")
         .to_moveit_configs()
     )

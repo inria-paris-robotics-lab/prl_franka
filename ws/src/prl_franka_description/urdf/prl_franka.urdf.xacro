@@ -3,10 +3,18 @@
 
   <xacro:include filename="$(find franka_description)/robots/common/franka_robot.xacro"/>
 
-  <xacro:arg name="arm_id" default="fr3" />
+  <xacro:property name="setup" value="${xacro.load_yaml('$(find prl_franka_run)/config/robot_config.yaml')}"/>
+  <xacro:property name="arm_id" value="${setup['ROBOT']['arm_id']}"/>
+  <xacro:property name="robot_ip" value="${setup['ROBOT']['robot_ip']}"/>
+  <xacro:property name="prefix" value="${setup['ROBOT']['arm_prefix']}"/>
+  <xacro:property name="load_gripper" value="${setup['ROBOT']['load_gripper']}"/>
+  <xacro:property name="ee_id" value="${setup['ROBOT']['ee_id']}"/>
+  <xacro:property name="hand" value="${setup['ROBOT']['load_gripper']}"/>
+  <xacro:property name="with_sc" value="${setup['ROBOT']['self_collision_safety']}"/>
+  <xacro:property name="ee_pose" value="${setup['ROBOT']['end_effector_pose']}"/>
+  <xacro:property name="xyz_ee" value="${' '.join(map(str, ee_pose['xyz']))}"/>
+  <xacro:property name="rpy_ee" value="${' '.join(map(str, ee_pose['rpy']))}"/>
 
-  <!-- The prefix of the robot -->
-  <xacro:arg name="arm_prefix" default="" />
 
   <!-- Multi-arm setup? -->
   <xacro:arg name="multi_arm" default="false" />
@@ -14,20 +22,8 @@
   <!-- Don't print a prefix for joints, visuals, and links? -->
   <xacro:arg name="no_prefix" default="false"/>
 
-  <!-- Should an end-effector be mounted at the flange?" -->
-  <xacro:arg name="hand" default="true" />
-
-  <!-- Which end-effector would be mounted at the flange?" -->
-  <xacro:arg name="ee_id" default="franka_hand" />
-
   <!-- Where is the end-effector connected to, if different from the robot flange?  -->
   <xacro:arg name="special_connection" default="" />
-
-  <!-- Position offset between ee and parent frame -->
-  <xacro:arg name="xyz_ee" default="0 0 0" />
-
-  <!-- Rotation offset between ee and parent frame -->
-  <xacro:arg name="rpy_ee" default= "0 0 ${-pi/4}" />
 
   <!-- Position offset between ee frame and tcp frame -->
   <xacro:arg name="tcp_xyz" default="0 0 0.1034" />
@@ -38,14 +34,8 @@
   <!-- Safety distance for the collision capsules -->
   <xacro:arg name="safety_distance" default="0.03" />
 
-  <!-- Should self-collision be enabled? -->
-  <xacro:arg name="with_sc" default="false" />
-
   <!-- Is the robot being controlled with ros2_control?" -->
   <xacro:arg name="ros2_control" default="false" />
-
-  <!-- IP address or hostname of the robot" -->
-  <xacro:arg name="robot_ip" default="" />
 
   <!-- Should a fake hardware be used? -->
   <xacro:arg name="use_fake_hardware" default="false" />
@@ -63,9 +53,12 @@
   <xacro:arg name="description_pkg" default="franka_description" />
 
   <!-- Append an underscore to the user-provided prefix, if non-empty. -->
-  <xacro:property name="prefix" value="$(arg arm_prefix)"/>
   <xacro:property name="modified_prefix" value="${prefix + '_' if prefix else ''}"/>
 
+  <!-- Copy in arg because franka robot uses this arg in sub macro-->
+  <xacro:arg name="hand" default="${hand}"/>
+  <xacro:arg name="ee_id" default="${ee_id}"/>
+  <xacro:arg name="with_sc" default="${with_sc}"/>
 
   <!-- Include table-->
   <link name="base_link" />
@@ -101,60 +94,60 @@
   </link>
 
   <xacro:if value="$(arg gazebo)">
-    <link name="$(arg arm_id)_attachment_link"/>
+    <link name="${arm_id}_attachment_link"/>
   </xacro:if>
-  <joint name="$(arg arm_id)_attachment_joint" type="fixed">
+  <joint name="${arm_id}_attachment_joint" type="fixed">
     <parent link="table_link"/>
-    <child link="$(arg arm_id)_attachment_link"/>
+    <child link="${arm_id}_attachment_link"/>
     <origin xyz="-0.6 0 0.095" rpy="0 0 0"/>
   </joint>
 
-  <xacro:if value="${'$(arg ee_id)' == 'franka_hand'}">
-    <xacro:franka_robot arm_id="$(arg arm_id)"
-                        joint_limits="${xacro.load_yaml('$(find franka_description)/robots/$(arg arm_id)/joint_limits.yaml')}"
-                        inertials="${xacro.load_yaml('$(find franka_description)/robots/$(arg arm_id)/inertials.yaml')}"
-                        kinematics="${xacro.load_yaml('$(find franka_description)/robots/$(arg arm_id)/kinematics.yaml')}"
-                        dynamics="${xacro.load_yaml('$(find franka_description)/robots/$(arg arm_id)/dynamics.yaml')}"
+  <xacro:if value="${ee_id == 'franka_hand'}">
+    <xacro:franka_robot arm_id="${arm_id}"
+                        joint_limits="${xacro.load_yaml('$(find franka_description)/robots/' + arm_id + '/joint_limits.yaml')}"
+                        inertials="${xacro.load_yaml('$(find franka_description)/robots/' + arm_id + '/inertials.yaml')}"
+                        kinematics="${xacro.load_yaml('$(find franka_description)/robots/' + arm_id + '/kinematics.yaml')}"
+                        dynamics="${xacro.load_yaml('$(find franka_description)/robots/' + arm_id + '/dynamics.yaml')}"
                         gazebo="$(arg gazebo)"
-                        hand="$(arg hand)"
-                        ee_id="$(arg ee_id)"
-                        with_sc="$(arg with_sc)"
+                        hand="${hand}"
+                        ee_id="${ee_id}"
+                        with_sc="${with_sc}"
                         ros2_control="$(arg ros2_control)"
-                        robot_ip="$(arg robot_ip)"
+                        robot_ip="${robot_ip}"
                         use_fake_hardware="$(arg use_fake_hardware)"
                         fake_sensor_commands="$(arg fake_sensor_commands)"
                         gazebo_effort="$(arg gazebo_effort)"
                         no_prefix="$(arg no_prefix)"
                         arm_prefix="${modified_prefix}"
-                        parent="$(arg arm_id)_attachment_link"
-                        connected_to="$(arg arm_id)_attachment_link"
+                        parent="${arm_id}_attachment_link"
+                        connected_to="${arm_id}_attachment_link"
                         xyz="0 0 0"
                         rpy="0 0 0">
     </xacro:franka_robot>
   </xacro:if>
-  <xacro:if value="${'$(arg ee_id)' == 'ball'}">
+  <xacro:if value="${ee_id == 'ball'}">
     <xacro:include filename="$(find prl_franka_description)/urdf/end_effectors/ball/ball.urdf.xacro"/>
-    <xacro:franka_robot arm_id="$(arg arm_id)"
-                        joint_limits="${xacro.load_yaml('$(find franka_description)/robots/$(arg arm_id)/joint_limits.yaml')}"
-                        inertials="${xacro.load_yaml('$(find franka_description)/robots/$(arg arm_id)/inertials.yaml')}"
-                        kinematics="${xacro.load_yaml('$(find franka_description)/robots/$(arg arm_id)/kinematics.yaml')}"
-                        dynamics="${xacro.load_yaml('$(find franka_description)/robots/$(arg arm_id)/dynamics.yaml')}"
+    <xacro:franka_robot arm_id="${arm_id}"
+                        joint_limits="${xacro.load_yaml('$(find franka_description)/robots/' + arm_id + '/joint_limits.yaml')}"
+                        inertials="${xacro.load_yaml('$(find franka_description)/robots/' + arm_id + '/inertials.yaml')}"
+                        kinematics="${xacro.load_yaml('$(find franka_description)/robots/' + arm_id + '/kinematics.yaml')}"
+                        dynamics="${xacro.load_yaml('$(find franka_description)/robots/' + arm_id + '/dynamics.yaml')}"
                         gazebo="$(arg gazebo)"
                         hand="false"
-                        ee_id=""
-                        with_sc="$(arg with_sc)"
+                        ee_id="none"
+                        with_sc="${with_sc}"
                         ros2_control="$(arg ros2_control)"
-                        robot_ip="$(arg robot_ip)"
+                        robot_ip="${robot_ip}"
                         use_fake_hardware="$(arg use_fake_hardware)"
                         fake_sensor_commands="$(arg fake_sensor_commands)"
                         gazebo_effort="$(arg gazebo_effort)"
                         no_prefix="$(arg no_prefix)"
                         arm_prefix="${modified_prefix}"
-                        parent="$(arg arm_id)_attachment_link"
-                        connected_to="$(arg arm_id)_attachment_link"
+                        parent="${arm_id}_attachment_link"
+                        connected_to="${arm_id}_attachment_link"
                         xyz="0 0 0"
                         rpy="0 0 0">
     </xacro:franka_robot>
-    <xacro:ball_effector parent="${modified_prefix}$(arg arm_id)_link8" arm_prefix="${modified_prefix}_$(arg arm_id)" xyz_ee="$(arg xyz_ee)" rpy_ee="$(arg rpy_ee)" tcp_xyz="$(arg tcp_xyz)" tcp_rpy="$(arg tcp_rpy)"/>
+    <xacro:ball_effector parent="${modified_prefix}${arm_id}_link8" arm_prefix="${modified_prefix}${arm_id}" xyz_ee="${xyz_ee}" rpy_ee="${rpy_ee}" tcp_xyz="$(arg tcp_xyz)" tcp_rpy="$(arg tcp_rpy)"/>
   </xacro:if>
 </robot>

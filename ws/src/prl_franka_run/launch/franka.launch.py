@@ -46,14 +46,12 @@ def launch_setup(
             f"Unsupported arm_id '{arm_id}' in robot configuration file! "
             "Supported values are: 'fer', 'fr3', 'fp3'."
         )
-    arm_prefix = config.get("arm_prefix", "")
-    robot_ip = config.get("robot_ip", "")
     namespaces = config.get("namespaces", "")
     ee_id = config.get("ee_id", "franka_hand")
     load_gripper = config.get("load_gripper", "true")
+    robot_ip = config.get("robot_ip", "")
+    arm_id = config.get("arm_id", "fr3")
     gripper_type = config.get("gripper_type", "franka_gripper")
-    with_sc = config.get("self_collision_safety", "true")
-    ee_pose = config.get("end_effector_pose", {})
 
     aux_computer_ip = LaunchConfiguration("aux_computer_ip")
     aux_computer_user = LaunchConfiguration("aux_computer_user")
@@ -219,22 +217,13 @@ def launch_setup(
         return val
 
     xacro_args = {
-        "robot_ip": robot_ip,
-        "arm_id": arm_id,
-        "arm_prefix": arm_prefix,
         "ros2_control": "true",
-        "hand": load_gripper,
-        "gripper_type": gripper_type,
         "use_fake_hardware": "false",
         "fake_sensor_commands": "false",
         "gazebo": use_gazebo,
-        "ee_id": ee_id,
         "gazebo_effort": use_gazebo,
         "with_sc": "false",
         "initial_joint_position": initial_joint_position,
-        "with_sc": with_sc,
-        "xyz_ee": f"'{_to_subst_value(ee_pose.get('xyz', '0 0 0'))}'",
-        "rpy_ee": f"'{_to_subst_value(ee_pose.get('rpy', '0 0 0'))}'",
     }
 
     robot_description_file_substitution = PathJoinSubstitution(
