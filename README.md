@@ -1,111 +1,171 @@
-# PRL Franka Research 3 ROS 2 Packages
+# PRL Franka — ROS 2 Setup
 
-This project integrates a ROS 2 development environment with Pixi and provides packages for the description, simulation, and control of the **Franka FR3** robot, developed by the **Paris Robotics Lab**.
+This project provides a complete **ROS 2 development environment** based on **Pixi**, including packages for **description, simulation, control, and motion planning** of the **Franka Robot** robot, developed by the **Paris Robotics Lab (PRL)**.
+
+---
 
 ## Included Packages
 
-| Package | Description |
-|---|---|
-| prl_fr3_description | Provides the robot description, including 3D assets (meshes, URDF/Xacro) required to visualize and simulate the FR3 in a ROS 2 environment. |
-| prl_fr3_gazebo | Provides launch files and configurations needed to simulate the FR3 in Gazebo. |
-| prl_fr3_control | Provides configuration files for ROS 2 controllers (ros2_control) and launch files to deploy the FR3 controllers. |
-| prl_fr3_moveit | Provides configuration and launch files to control the FR3 using various motion-planning solvers with MoveIt 2. |
-| prl_fr3_run | Provides high-level launch files for accessing the real robot (starting the franka_ros2 driver and enabling control) or launching full simulations. |
+| Package               | Description                                                                                                    |
+| --------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `prl_fr3_description` | Robot description package containing URDF/Xacro files and 3D assets (meshes) for visualization and simulation. |
+| `prl_fr3_control`     | ROS 2 control (`ros2_control`) configuration files and controller launch utilities.                            |
+| `prl_fr3_moveit`      | MoveIt 2 configuration and launch files for motion planning with the FR3.                                      |
+| `prl_fr3_run`         | High-level launch files for running the FR3 on real hardware or in full simulation.                            |
+
+---
 
 ## Prerequisites
 
-*   **Pixi** must be installed on your machine.
-*   **Pre-commit** installed for code quality checks.
+* **Pixi** installed on your system
+* **Pre-commit** installed for code quality checks
 
 ---
 
 ## Installation
 
-Clone the repository and set up the workspace by following the steps below.
+Clone the repository and set up the workspace:
 
 ```bash
-# Clone the repository
-git clone
+git clone https://github.com/inria-paris-robotics-lab/prl_franka.git
 cd prl_fr3
 ```
 
-### 1. Environment Setup
+---
 
-Build your Pixi environment with the required dependencies:
+## 1. Environment Setup (Pixi)
+
+Build the Pixi environment and install dependencies:
 
 ```bash
-# Enable insecure post-link scripts to allow ros autocompletion
+# Allow post-link scripts (needed for ROS autocompletion)
 pixi config set --local run-post-link-scripts insecure
-# Install dependencies and build the environment
+
+# Install dependencies
 pixi install
 ```
-Launch the Pixi environment:
+
+Activate the Pixi environment:
 
 ```bash
 pixi shell
 ```
-### 2. Build the ros2 workspace
 
-Follow the steps below to set up and build the ROS 2 workspace.
+---
+
+## 2. Build the ROS 2 Workspace
 
 ```bash
 cd ws
 colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
 ```
 
+---
 
+## Configure the Real Robot Setup
 
-## Configurate your setup with the real robot
+Before using the FR3 hardware, configure your setup.
 
-Before using the FR3, you need to configure your hardware setup.
+### `prl_fr3_robot_configuration`
 
-### prl_fr3_robot_configuration
-Edit the `prl_fr3_robot_configuration/config/standard_setup.yaml` file (or equivalent). Update the following parameters:
+Edit the file:
 
-*   **Robot IP:** Specify the IP address of the FR3 Control station (usually `172.16.0.2` or `192.168.1.1`).
-*   **Cameras:** Configure hand-eye or fixed cameras (Realsense, Orbbec).
-*   **Gripper:** Define if the standard Franka Hand or a custom gripper is used.
+```
+prl_fr3_run/config/robot_config.yaml
+```
+
+## Robot Configuration File (`robot_config.yaml`)
+
+| Field                   | Type / Example     | Purpose                                                                 |
+| ----------------------- | ------------------ | ----------------------------------------------------------------------- |
+| `ROBOT`                 | section            | Root section describing one robot instance.                             |
+| `arm_id`                | `"fr3"`            | Robot model / arm identifier (reserved for future multi-robot support). |
+| `arm_prefix`            | `""`               | Optional unique robot prefix (reserved for future use).                 |
+| `namespace`             | `""`               | ROS namespace. Should be unique to avoid topic conflicts.               |
+| `robot_ip`              | `"172.17.1.5"`     | IP or hostname of the real robot (ignored in simulation).               |
+| `load_gripper`          | `"true"`           | Whether to load the gripper model.                                      |
+| `end_effector_pose`     | section            | Pose offset applied to the end-effector frame.                          |
+| `end_effector_pose.xyz` | `[0.0, 0.0, 0.01]` | Position offset `[x, y, z]` in meters.                                  |
+| `end_effector_pose.rpy` | `[0.0, 0.0, 0.0]`  | Orientation offset `[roll, pitch, yaw]` in radians.                     |
+| `ee_id`                 | `"ball"`           | End-effector type (`franka_hand`, `ball`, etc.).                        |
+| `self_collision_safety` | `"false"`          | Enable or disable self-collision safety checks.                         |
+
 
 ---
 
-## Usage Tips
+## Usage
 
-> **Note:** The following instructions are examples. Use `--show-args` on launch files to see all options.
+> **Note:** These are example commands. Use `--show-args` on launch files to see all available options.
 
-### Source the workspace
-Before running any launch files, source the workspace:
+### Source the Workspace
 
 ```bash
 source install/setup.bash
 ```
 
-### 1. Visualize in RViz
-Only visualize the robot model stabdalone:
+---
+
+### 1. Visualize the Robot in RViz
+
+Visualize the robot model only (no simulation, no controllers):
 
 ```bash
 ros2 launch prl_fr3_description view_robot.launch.py
 ```
 
-### 2. Simulation (Gazebo + MoveIt)
-To simulate the FR3 in Gazebo and control it via MoveIt:
+---
+
+### 2. Simulation (Gazebo + RViz)
+
+Simulate the FR3 in Gazebo with visualization:
 
 ```bash
- ros2 launch prl_franka_run franka.launch.py use_gazebo:=true use_rviz:=true
+ros2 launch prl_franka_run franka.launch.py use_gazebo:=true use_rviz:=true
 ```
 
-### 3. Real Robot
-To control the real FR3 hardware:
+---
 
-1.  Ensure the robot brakes are unlocked and FCI is activated (blue light).
-2.  Launch the driver and controllers:
+### 3. Real Robot Execution
+
+To control the real FR3:
+
+1. Ensure the robot brakes are released and the FCI is active (blue light).
+2. Launch the driver and controllers:
 
 ```bash
-ros2 launch prl_fr3_run franka.launch.py robot_ip:=<ROBOT_IP_ADDRESS> use_rviz:=true
+ros2 launch prl_fr3_run franka.launch.py use_gazebo:=false use_rviz:=true
 ```
+
+---
+
+## Launch Arguments
+
+| Argument                      | Default value                                     | Purpose                                                                         |
+| ----------------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `robot_config_file`           | `prl_franka_run/config/robot_config.yaml`         | Main robot configuration file (arm ID, end-effector, IPs, gripper, namespaces). |
+| `external_controllers_params` | `""`                                              | YAML file defining external/custom controllers parameters.                      |
+| `external_controllers_names`  | `['']`                                            | List of external controller names to spawn.                                     |
+| `franka_controllers_params`   | `prl_franka_control/config/controllers.yaml`      | Parameters for Franka arm controllers (gains, joints, interfaces).              |
+| `franka_controllers_setup`    | `prl_franka_control/config/controller_setup.yaml` | Defines which controllers are loaded and activated.                             |
+| `initial_joint_position`      | `'0.0 -0.78 0.0 -2.35 0.0 1.57 0.78 0.0'`         | Initial joint configuration used in Gazebo simulation.                          |
+| `gz_world_path`               | `prl_franka_description/worlds/empty.sdf`         | Gazebo world (SDF) to load.                                                     |
+| `rviz_config_path`            | `prl_franka_description/rviz/config.rviz`         | RViz configuration file.                                                        |
+| `use_gazebo`                  | `false`                                           | Enable Gazebo simulation mode.                                                  |
+| `use_rviz`                    | `false`                                           | Launch RViz for visualization.                                                  |
+| `gz_verbose`                  | `false`                                           | Enable verbose Gazebo logging.                                                  |
+| `gz_headless`                 | `false`                                           | Run Gazebo without GUI (physics server only).                                   |
+| `use_ft_sensor`               | `false`                                           | *Not supported yet.*                                                            |
+| `ft_sensor_ip`                | `""`                                              | *Not supported yet.*                                                            |
+
 
 ---
 
 ## Important Notes
 
-*   **Real-Time Kernel:** Controlling the physical FR3 often requires a Linux kernel with PREEMPT_RT patches for stable communication (`libfranka`). Ensure your host machine (or Docker setup) supports this if you experience jerky motion or communication errors.
-*   **Network:** Ensure your machine is on the same subnet as the robot.
+* **Real-Time Kernel**
+  Running the real FR3 reliably often requires a Linux kernel with **PREEMPT_RT** patches for stable `libfranka` communication.
+
+* **Network Configuration**
+  Ensure your machine is on the same subnet as the robot to avoid connectivity issues.
+
+---
