@@ -1,0 +1,5 @@
+controllers:
+  active_controllers:
+    - fr3_arm_controller
+  inactive_controllers:
+  unused_controllers:

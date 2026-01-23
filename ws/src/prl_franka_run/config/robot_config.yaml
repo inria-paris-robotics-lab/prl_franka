@@ -1,0 +1,20 @@
+# Defines parameters for launching 0 to many (here only 1 is enabled)
+# Franka Robotics components in
+# namespaced or non-namespaced environments.
+#
+# Note: This is a launch configuration file, not a node parameter file (see: controllers.yaml).
+# Ensure all boolean values are quoted ("true" or "false") to avoid YAML parsing issues.
+# Not all parameters are currently used but are included for future compatibility.
+# Ensure each robot has a unique namespace to prevent topic conflicts.
+
+ROBOT: # Arbitrary identifier for the first robot (a Mnemonic)
+  arm_id: "fr3" # Reserved for future use, unique arm (i.e. robot model) identifier
+  arm_prefix: "" # Reserved for future use (e.g., robot unique prefix)
+  namespace: "" # Namespace for robot, any string (empty string allowed - meaningful names recommended)
+  robot_ip: "172.17.1.5" # Robot’s IP address or hostname
+  load_gripper: "true" # load the gripper model ("true" or "false")
+  end_effector_pose:
+    xyz: [0.0, 0.0, 0.01] # End-effector position offset [x, y, z] in meters
+    rpy: [0.0, 0.0, 0.0]   # End-effector orientation offset [roll, pitch, yaw] in radians
+  ee_id: "ball" # End-effector with which the robot is equipped ("franka_hand", "ball")
+  self_collision_safety: "false" # Disable self-collision safety checks ("true" or "false")
