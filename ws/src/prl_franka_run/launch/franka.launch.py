@@ -206,10 +206,10 @@ def launch_setup(
             "gz_world_path": gz_world_path,
             "use_ft_sensor": use_ft_sensor,
             "ee_id": ee_id,
+            "load_gripper": load_gripper,
         }.items(),
         condition=IfCondition(use_gazebo),
     )
-    print(f"load gripper: {load_gripper}")
 
     def _to_subst_value(val):
         if isinstance(val, (list, tuple)):

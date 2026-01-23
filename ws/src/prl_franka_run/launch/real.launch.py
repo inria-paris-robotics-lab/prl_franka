@@ -19,6 +19,8 @@ from controller_manager.launch_utils import (
 import os
 import yaml
 
+# TODO add controller launch for other gripper if needed for now we doesn't need it because the franka hand use a node from franka_gripper package
+
 
 def launch_setup(
     context: LaunchContext, *args, **kwargs

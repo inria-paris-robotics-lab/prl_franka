@@ -1,6 +1,5 @@
 controllers:
   active_controllers:
-    - gripper_action_controller
     - fr3_arm_controller
   inactive_controllers:
   unused_controllers:

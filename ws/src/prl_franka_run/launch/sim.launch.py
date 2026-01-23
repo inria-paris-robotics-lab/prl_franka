@@ -11,7 +11,7 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
-
+from launch.conditions import IfCondition
 from controller_manager.launch_utils import (
     generate_controllers_spawner_launch_description,
 )
@@ -28,6 +28,7 @@ def launch_setup(
     gz_world_path = LaunchConfiguration("gz_world_path")
     use_ft_sensor = LaunchConfiguration("use_ft_sensor")
     ee_id = LaunchConfiguration("ee_id")
+    load_gripper = LaunchConfiguration("load_gripper")
 
     gz_verbose_bool = context.perform_substitution(gz_verbose).lower() == "true"
     gz_headless_bool = context.perform_substitution(gz_headless).lower() == "true"
@@ -35,11 +36,13 @@ def launch_setup(
     use_ft_sensor_bool = context.perform_substitution(use_ft_sensor).lower() == "true"
     ee_id_str = context.perform_substitution(ee_id).lower()
     controller_param_file = os.path.join(
-        get_package_share_directory("prl_franka_control"), "config", "controllers.yaml"
+        get_package_share_directory("prl_franka_control"),
+        "config/arm",
+        "arm_controllers.yaml",
     )
     config_controller_path = os.path.join(
         get_package_share_directory("prl_franka_control"),
-        "config",
+        "config/arm",
         "controller_setup.yaml",
     )
     with open(config_controller_path, "r") as setup_file:
@@ -97,16 +100,14 @@ def launch_setup(
     ###### Controllers ######
     inactive_controller = ",".join(loaded_controllers)
     active_controllers = ",".join(activate_controllers)
-    print("Active controllers: ", active_controllers)
-    print("Inactive controllers: ", inactive_controller)
-    controller_launch = IncludeLaunchDescription(
+    arm_controllers_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             [
                 PathJoinSubstitution(
                     [
                         FindPackageShare("prl_franka_control"),
                         "launch",
-                        "controllers.launch.py",
+                        "franka_controllers.launch.py",
                     ]
                 )
             ]
@@ -118,6 +119,24 @@ def launch_setup(
         }.items(),
     )
 
+    gripper_controller_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            [
+                PathJoinSubstitution(
+                    [
+                        FindPackageShare("prl_franka_control"),
+                        "launch",
+                        "gripper_controller.launch.py",
+                    ]
+                )
+            ]
+        ),
+        launch_arguments={
+            "gripper": ee_id_str,
+        }.items(),
+        condition=IfCondition(load_gripper),
+    )
+
     return [
         gazebo_empty_world,
         ros_gz_bridge_node,
@@ -125,7 +144,7 @@ def launch_setup(
         RegisterEventHandler(
             event_handler=OnProcessExit(
                 target_action=robot_spawner_node,
-                on_exit=[controller_launch],
+                on_exit=[arm_controllers_launch, gripper_controller_launch],
             )
         ),
     ]
@@ -166,6 +185,12 @@ def generate_launch_description():
             "ee_id",
             default_value="franka_hand",
             description="Name of the end effector used.",
+        ),
+        DeclareLaunchArgument(
+            "load_gripper",
+            default_value="false",
+            description="Whether to load the gripper model.",
+            choices=["true", "false"],
         ),
     ]
     return LaunchDescription(
