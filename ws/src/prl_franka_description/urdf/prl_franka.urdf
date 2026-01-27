@@ -17,13 +17,13 @@
   <link name="table_link">
     <visual>
       <geometry>
-        <mesh filename="file:///home/tcarecch/Git/prl_fr3/ws/install/prl_franka_description/share/prl_franka_description/meshes/table.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://prl_franka_description/meshes/table.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="Blue"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="file:///home/tcarecch/Git/prl_fr3/ws/install/prl_franka_description/share/prl_franka_description/meshes/table.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://prl_franka_description/meshes/table.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
     <inertial>
@@ -267,7 +267,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="file:///home/tcarecch/Git/prl_fr3/ws/install/prl_franka_description/share/prl_franka_description/meshes/end_effectors/ball/ball.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://prl_franka_description/meshes/end_effectors/ball/ball.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="black">
         <color rgba="0.0 0.0 0.0 1.0"/>
@@ -276,7 +276,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="file:///home/tcarecch/Git/prl_fr3/ws/install/prl_franka_description/share/prl_franka_description/meshes/end_effectors/ball/ball_hull.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://prl_franka_description/meshes/end_effectors/ball/ball_hull.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
     <inertial>
