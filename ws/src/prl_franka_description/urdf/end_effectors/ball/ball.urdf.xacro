@@ -1,11 +1,11 @@
 <?xml version='1.0' encoding='utf-8'?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="ball_effector">
 
-    <xacro:macro name="ball_effector" params="parent arm_prefix xyz_ee rpy_ee tcp_xyz tcp_rpy">
+    <xacro:macro name="ball_effector" params="parent prefix xyz_ee rpy_ee tcp_xyz tcp_rpy">
 
-        <link name="${arm_prefix}_ball_link">
+        <link name="${prefix}_ball_link">
             <visual>
-                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <origin xyz="0 0 0.01" rpy="0 0 0"/>
                 <geometry>
                     <mesh filename="package://prl_franka_description/meshes/end_effectors/ball/ball.stl" scale="0.001 0.001 0.001"/>
                 </geometry>
@@ -25,9 +25,9 @@
             </inertial>
         </link>
 
-        <joint name="${arm_prefix}_ball_joint" type="fixed">
+        <joint name="${prefix}_ball_joint" type="fixed">
             <parent link="${parent}"/>
-            <child link="${arm_prefix}_ball_link"/>
+            <child link="${prefix}_ball_link"/>
             <origin xyz="${xyz_ee}" rpy="${rpy_ee}"/>
         </joint>
     </xacro:macro>

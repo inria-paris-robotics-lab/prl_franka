@@ -25,6 +25,3 @@ if command -v register-python-argcomplete >/dev/null 2>&1; then
 else
     echo "[DEBUG] argcomplete not found!"
 fi
-
-# Place the user in the workspace directory
-cd ws || exit 1

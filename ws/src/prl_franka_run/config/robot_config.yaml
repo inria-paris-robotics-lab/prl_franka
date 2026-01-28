@@ -14,7 +14,8 @@ ROBOT: # Arbitrary identifier for the first robot (a Mnemonic)
   robot_ip: "172.17.1.5" # Robot’s IP address or hostname
   load_gripper: "true" # load the gripper model ("true" or "false")
   end_effector_pose:
-    xyz: [0.0, 0.0, 0.01] # End-effector position offset [x, y, z] in meters
-    rpy: [0.0, 0.0, 0.0]   # End-effector orientation offset [roll, pitch, yaw] in radians
+    xyz: [0.0, 0.0, 0.0] # End-effector position offset [x, y, z] in meters
+    rpy: [0.0, 0.0, -2.3561]   # End-effector orientation offset [roll, pitch, yaw] in radians (if ft sensor is used, set to [0,0,-2.3561])
   ee_id: "franka_hand" # End-effector with which the robot is equipped ("franka_hand", "ball")
   self_collision_safety: "false" # Disable self-collision safety checks ("true" or "false")
+  force_torque_sensor: "true" # Enable force-torque sensor ("true" or "false")

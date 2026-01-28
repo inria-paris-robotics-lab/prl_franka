@@ -14,6 +14,7 @@
   <xacro:property name="ee_pose" value="${setup['ROBOT']['end_effector_pose']}"/>
   <xacro:property name="xyz_ee" value="${' '.join(map(str, ee_pose['xyz']))}"/>
   <xacro:property name="rpy_ee" value="${' '.join(map(str, ee_pose['rpy']))}"/>
+  <xacro:property name="ft_sensor" value="${setup['ROBOT']['force_torque_sensor']}"/>
 
 
   <!-- Multi-arm setup? -->
@@ -21,9 +22,6 @@
 
   <!-- Don't print a prefix for joints, visuals, and links? -->
   <xacro:arg name="no_prefix" default="false"/>
-
-  <!-- Where is the end-effector connected to, if different from the robot flange?  -->
-  <xacro:arg name="special_connection" default="" />
 
   <!-- Position offset between ee frame and tcp frame -->
   <xacro:arg name="tcp_xyz" default="0 0 0.1034" />
@@ -59,6 +57,8 @@
   <xacro:arg name="hand" default="${hand}"/>
   <xacro:arg name="ee_id" default="${ee_id}"/>
   <xacro:arg name="with_sc" default="${with_sc}"/>
+  <xacro:arg name="xyz_ee" default="${xyz_ee}"/>
+  <xacro:arg name="rpy_ee" default="${rpy_ee}"/>
 
   <!-- Include table-->
   <link name="base_link" />
@@ -102,6 +102,21 @@
     <origin xyz="-0.6 0 0.095" rpy="0 0 0"/>
   </joint>
 
+  <!-- Force torque sensor -->
+  <xacro:if value="${ft_sensor}">
+    <xacro:include filename="$(find robotiq_ft_sensor_description)/urdf/robotiq_ft300.urdf.xacro" />
+    <xacro:include filename="$(find robotiq_ft_sensor_description)/urdf/robotiq_fts.ros2_control.xacro" />
+      <xacro:robotiq_ft300 parent="${modified_prefix}${arm_id}_link8" tf_prefix="${modified_prefix}">
+        <origin xyz="0 0 -0.01" rpy="0 0 0"/>
+      </xacro:robotiq_ft300>
+    <xacro:property name="ee_mount_parent" value="${modified_prefix}robotiq_ft_frame_id"/>
+  </xacro:if>
+  <xacro:unless value="${ft_sensor}">
+    <xacro:property name="ee_mount_parent" value="${modified_prefix}${arm_id}_link8"/>
+  </xacro:unless>
+  <!-- Where is the end-effector connected to, if different from the robot flange?  -->
+  <xacro:arg name="special_connection" default="${ee_mount_parent}"/>
+
   <xacro:if value="${ee_id == 'ball' and load_gripper}">
     <xacro:include filename="$(find prl_franka_description)/urdf/end_effectors/ball/ball.urdf.xacro"/>
     <xacro:franka_robot
@@ -127,8 +142,8 @@
         rpy="0 0 0"/>
 
     <xacro:ball_effector
-        parent="${modified_prefix}${arm_id}_link8"
-        arm_prefix="${modified_prefix}${arm_id}"
+        parent="${ee_mount_parent}"
+        prefix="${modified_prefix}${arm_id}"
         xyz_ee="${xyz_ee}"
         rpy_ee="${rpy_ee}"
         tcp_xyz="$(arg tcp_xyz)"
