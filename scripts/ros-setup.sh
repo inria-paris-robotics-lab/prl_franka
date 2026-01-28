@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Build workspace si le setup.bash n'existe pas
+# Build workspace if not built yet
 if [ ! -f "ws/install/setup.bash" ]; then
     echo "[INFO] ROS 2 workspace not built yet. Building..."
     cd ws
