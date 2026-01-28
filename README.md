@@ -37,6 +37,9 @@ cd prl_fr3
 
 Build the Pixi environment and install dependencies:
 
+> [!NOTE]
+> The `run-post-link-scripts insecure` setting is required to allow ROS setup scripts to run.*
+
 ```bash
 # Allow post-link scripts (needed for ROS autocompletion)
 pixi config set --local run-post-link-scripts insecure
@@ -46,7 +49,8 @@ pixi install
 ```
 
 Activate the Pixi environment:
-
+> [!NOTE]
+> For the first launch, this may take a while as Pixi builds the ros2 workspace from source.
 ```bash
 pixi shell
 ```
@@ -95,7 +99,8 @@ prl_fr3_run/config/robot_config.yaml
 
 ## Usage
 
-> **Note:** These are example commands. Use `--show-args` on launch files to see all available options.
+> [!NOTE]
+> These are example commands. Use `--show-args` on launch files to see all available options.
 
 ### Source the Workspace
 
@@ -159,13 +164,11 @@ ros2 launch prl_fr3_run franka.launch.py use_gazebo:=false use_rviz:=true
 
 
 ---
-
-## Important Notes
-
-* **Real-Time Kernel**
-  Running the real FR3 reliably often requires a Linux kernel with **PREEMPT_RT** patches for stable `libfranka` communication.
-
-* **Network Configuration**
-  Ensure your machine is on the same subnet as the robot to avoid connectivity issues.
+> [!IMPORTANT]
+> **Real-Time Kernel**
+> Running the real FR3 reliably often requires a Linux kernel with **PREEMPT_RT** patches for stable `libfranka` communication.
+>
+> **Network Configuration**
+> Ensure your machine is on the same subnet as the robot to avoid connectivity issues.
 
 ---
