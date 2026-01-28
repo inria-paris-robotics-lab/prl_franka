@@ -116,6 +116,7 @@ def launch_setup(
             "active_controller": str(active_controllers),
             "loaded_controllers": str(inactive_controller),
             "controller_file": str(controller_param_file),
+            "simulation": "true",
         }.items(),
     )
 
@@ -168,7 +169,7 @@ def generate_launch_description():
             "gz_world_path",
             default_value=PathJoinSubstitution(
                 [
-                    FindPackageShare("prl_franka_description"),
+                    FindPackageShare("franka_description"),
                     "worlds",
                     "empty.sdf",
                 ]

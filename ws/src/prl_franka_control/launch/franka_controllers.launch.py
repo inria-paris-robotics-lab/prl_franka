@@ -1,9 +1,10 @@
 from launch import LaunchDescription
 from launch_ros.actions import Node
-from launch.actions import DeclareLaunchArgument, OpaqueFunction, RegisterEventHandler
+from launch.actions import DeclareLaunchArgument, OpaqueFunction
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
-from launch.event_handlers import OnProcessExit
 from launch_ros.substitutions import FindPackageShare
+
+from launch.conditions import IfCondition
 
 
 def controller_spawner(controllers, controller_params, active=True):
@@ -38,7 +39,7 @@ def launch_setup(context):
     active_controller = LaunchConfiguration("active_controller").perform(context)
     loaded_controllers = LaunchConfiguration("loaded_controllers").perform(context)
     controller_params = LaunchConfiguration("controller_file").perform(context)
-
+    simulation = LaunchConfiguration("simulation").perform(context)
     # Convert string to list
     controllers_to_activate = [c for c in active_controller.split(",") if c]
     controllers_to_load = [c for c in loaded_controllers.split(",") if c]
@@ -56,6 +57,7 @@ def launch_setup(context):
             "--param-file",
             controller_params,
         ],
+        condition=IfCondition(simulation),
     )
     controllers_active = []
     # Default inactive controllers
@@ -73,15 +75,8 @@ def launch_setup(context):
     ) + controller_spawner(controllers_inactive, controller_params, active=False)
     print("Controllers to activate: ", controller_spawners)
 
-    return [
-        joint_state_broadcaster_spawner,
-        RegisterEventHandler(
-            event_handler=OnProcessExit(
-                target_action=joint_state_broadcaster_spawner,
-                on_exit=controller_spawners,
-            )
-        ),
-    ]
+    # Flatten controller spawners into top-level entities
+    return [joint_state_broadcaster_spawner] + controller_spawners
 
 
 def generate_launch_description():
@@ -111,6 +106,11 @@ def generate_launch_description():
                 ]
             ),
             description="Path to the controller configuration file.",
+        ),
+        DeclareLaunchArgument(
+            "simulation",
+            default_value="false",
+            description="Whether to run in simulation mode or on real robot.",
         ),
     ]
     return LaunchDescription(

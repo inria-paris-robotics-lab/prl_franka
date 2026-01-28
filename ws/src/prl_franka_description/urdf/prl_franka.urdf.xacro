@@ -77,13 +77,13 @@
   <link name="table_link">
       <visual>
           <geometry>
-              <mesh filename="file://$(find prl_franka_description)/meshes/table.stl" scale="0.001 0.001 0.001"/>
+              <mesh filename="package://prl_franka_description/meshes/table.stl" scale="0.001 0.001 0.001"/>
           </geometry>
           <material name="Blue"/>
       </visual>
       <collision>
           <geometry>
-              <mesh filename="file://$(find prl_franka_description)/meshes/table.stl" scale="0.001 0.001 0.001"/>
+              <mesh filename="package://prl_franka_description/meshes/table.stl" scale="0.001 0.001 0.001"/>
           </geometry>
       </collision>
       <inertial>

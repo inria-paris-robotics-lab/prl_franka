@@ -268,6 +268,7 @@ def launch_setup(
                 "rate": 30,
             },
         ],
+        condition=UnlessCondition(use_gazebo),
     )
 
     rviz_node = Node(
@@ -282,7 +283,7 @@ def launch_setup(
         franka_hardware_launch,
         franka_simulation_launch,
         robot_state_publisher_node,
-        # joint_state_publisher_node,
+        joint_state_publisher_node,
         rviz_node,
     ]
 
@@ -315,8 +316,8 @@ def generate_launch_description():
             default_value=PathJoinSubstitution(
                 [
                     FindPackageShare("prl_franka_control"),
-                    "config",
-                    "controllers.yaml",
+                    "config/arm",
+                    "arm_controllers.yaml",
                 ]
             ),
             description="Path to the yaml file used to define controller parameters.",
@@ -326,7 +327,7 @@ def generate_launch_description():
             default_value=PathJoinSubstitution(
                 [
                     FindPackageShare("prl_franka_control"),
-                    "config",
+                    "config/arm",
                     "controller_setup.yaml",
                 ]
             ),

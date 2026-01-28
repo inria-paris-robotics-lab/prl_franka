@@ -16,5 +16,5 @@ ROBOT: # Arbitrary identifier for the first robot (a Mnemonic)
   end_effector_pose:
     xyz: [0.0, 0.0, 0.01] # End-effector position offset [x, y, z] in meters
     rpy: [0.0, 0.0, 0.0]   # End-effector orientation offset [roll, pitch, yaw] in radians
-  ee_id: "ball" # End-effector with which the robot is equipped ("franka_hand", "ball")
+  ee_id: "franka_hand" # End-effector with which the robot is equipped ("franka_hand", "ball")
   self_collision_safety: "false" # Disable self-collision safety checks ("true" or "false")

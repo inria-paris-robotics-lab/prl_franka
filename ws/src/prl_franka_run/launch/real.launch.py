@@ -5,7 +5,6 @@ from launch.actions import (
     OpaqueFunction,
     Shutdown,
     RegisterEventHandler,
-    IfCondition,
 )
 from launch.launch_description_entity import LaunchDescriptionEntity
 from launch.launch_description_sources import PythonLaunchDescriptionSource
@@ -16,8 +15,10 @@ from launch.event_handlers import OnProcessExit
 from controller_manager.launch_utils import (
     generate_controllers_spawner_launch_description,  # noqa: I001
 )
+from launch.conditions import IfCondition
 import os
 import yaml
+from launch.substitutions import PythonExpression
 
 # TODO add controller launch for other gripper if needed for now we doesn't need it because the franka hand use a node from franka_gripper package
 
@@ -37,18 +38,16 @@ def launch_setup(
     # YAML may omit lists which yields None; default to empty lists to avoid join errors
     activate_controllers = all_controllers.get("active_controllers") or []
     loaded_controllers = all_controllers.get("inactive_controllers") or []
-    disable_collision_safety_bool = (
-        context.perform_substitution(disable_collision_safety).lower() == "true"
-    )
     default_controller_params = PathJoinSubstitution(
         [
             FindPackageShare("prl_franka_control"),
-            "config",
+            "config/arm",
             "default_controllers.yaml",
         ]
     )
     ee_id = LaunchConfiguration("ee_id").perform(context)
-    franka_hand = ee_id == "franka_hand"
+    franka_hand_condition = str((ee_id == "franka_hand"))
+    print("franka_hand_condition: ", franka_hand_condition)
 
     controller_manager_node = Node(
         package="controller_manager",
@@ -78,7 +77,7 @@ def launch_setup(
                     [
                         FindPackageShare("prl_franka_control"),
                         "launch",
-                        "controllers.launch.py",
+                        "franka_controllers.launch.py",
                     ]
                 )
             ]
@@ -105,7 +104,7 @@ def launch_setup(
         launch_arguments={
             "robot_ip": robot_ip,
         }.items(),
-        condition=IfCondition(franka_hand),
+        condition=IfCondition(franka_hand_condition),
     )
 
     return [
@@ -138,8 +137,8 @@ def generate_launch_description():
             default_value=PathJoinSubstitution(
                 [
                     FindPackageShare("prl_franka_control"),
-                    "config",
-                    "controllers.yaml",
+                    "config/arm",
+                    "arm_controllers.yaml",
                 ]
             ),
             description="Path to the yaml file used to define controller parameters.",
@@ -149,7 +148,7 @@ def generate_launch_description():
             default_value=PathJoinSubstitution(
                 [
                     FindPackageShare("prl_franka_control"),
-                    "config",
+                    "config/arm",
                     "controller_setup.yaml",
                 ]
             ),
