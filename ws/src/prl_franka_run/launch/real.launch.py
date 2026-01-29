@@ -30,6 +30,8 @@ def launch_setup(
     disable_collision_safety = LaunchConfiguration("disable_collision_safety")
     franka_controllers_params = LaunchConfiguration("franka_controllers_params")
     franka_controllers_setup = LaunchConfiguration("franka_controllers_setup")
+    joint_state_rate = int(LaunchConfiguration("joint_state_rate").perform(context))
+    load_gripper = LaunchConfiguration("load_gripper").perform(context)
     with open(
         os.path.join(franka_controllers_setup.perform(context)), "r"
     ) as setup_file:
@@ -47,13 +49,18 @@ def launch_setup(
     )
     ee_id = LaunchConfiguration("ee_id").perform(context)
     franka_hand_condition = str((ee_id == "franka_hand"))
-    print("franka_hand_condition: ", franka_hand_condition)
+
+    joint_state_publisher_sources = [
+        "franka/joint_states",
+        "franka_gripper/joint_states",
+    ]
 
     controller_manager_node = Node(
         package="controller_manager",
         executable="ros2_control_node",
         parameters=[
             default_controller_params,
+            {"load_gripper": load_gripper},
         ],
         output={
             "stdout": "screen",
@@ -61,8 +68,23 @@ def launch_setup(
         },
         remappings=[
             ("/controller_manager/robot_description", "/robot_description"),
+            ("joint_states", joint_state_publisher_sources[0]),
         ],
         on_exit=Shutdown(),
+    )
+
+    joint_state_publisher = Node(
+        package="joint_state_publisher",
+        executable="joint_state_publisher",
+        name="joint_state_publisher",
+        parameters=[
+            {
+                "source_list": joint_state_publisher_sources,
+                "rate": joint_state_rate,
+                "use_robot_description": False,
+            }
+        ],
+        output="screen",
     )
 
     ###### Controllers ######
@@ -107,10 +129,29 @@ def launch_setup(
         condition=IfCondition(franka_hand_condition),
     )
 
+    ft_sensor_controller = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            [
+                PathJoinSubstitution(
+                    [
+                        FindPackageShare("prl_franka_control"),
+                        "launch",
+                        "sensors.launch.py",
+                    ]
+                )
+            ]
+        ),
+        launch_arguments={
+            "force_torque_sensor": LaunchConfiguration("ft_sensor"),
+        }.items(),
+    )
+
     return [
         controller_manager_node,
         franka_gripper_launch,
         controller_launch,
+        joint_state_publisher,
+        ft_sensor_controller,
     ]
 
 
@@ -158,6 +199,23 @@ def generate_launch_description():
             "ee_id",
             default_value="franka_hand",
             description="Name of the end effector used.",
+        ),
+        DeclareLaunchArgument(
+            "joint_state_rate",
+            default_value="1000",
+            description="Rate in Hz at which joint states are published.",
+        ),
+        DeclareLaunchArgument(
+            "load_gripper",
+            default_value="true",
+            description="Whether to load the gripper or not.",
+            choices=["true", "false"],
+        ),
+        DeclareLaunchArgument(
+            "ft_sensor",
+            default_value="false",
+            description="Whether to load the force torque sensor controller.",
+            choices=["true", "false"],
         ),
     ]
 

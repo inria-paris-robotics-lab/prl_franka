@@ -71,7 +71,6 @@ def launch_setup(
     initial_joint_position = LaunchConfiguration("initial_joint_position")
 
     use_ft_sensor = LaunchConfiguration("use_ft_sensor")
-    ft_sensor_ip = LaunchConfiguration("ft_sensor_ip")
 
     robot_ip_empty = robot_ip == ""
     aux_computer_ip_empty = context.perform_substitution(aux_computer_ip) == ""
@@ -80,8 +79,6 @@ def launch_setup(
 
     use_rviz_bool = context.perform_substitution(use_rviz).lower() == "true"
 
-    use_ft_sensor_bool = context.perform_substitution(use_ft_sensor).lower() == "true"
-    ft_sensor_ip_empty = context.perform_substitution(ft_sensor_ip) == ""
     on_aux_computer_bool = (
         context.perform_substitution(on_aux_computer).lower() == "true"
     )
@@ -144,24 +141,6 @@ def launch_setup(
             "`on_aux_computer:=true` and `use_rviz:=true`."
         )
 
-    if use_ft_sensor_bool and ft_sensor_ip_empty and not robot_ip_empty:
-        raise RuntimeError(
-            "Incorrect launch configuration! Can not launch demo with "
-            "`use_ft_sensor:=true` empty `ft_sensor_ip` and non-empty `robot_ip`."
-        )
-
-    if not ft_sensor_ip_empty and use_gazebo_bool:
-        raise RuntimeError(
-            "Incorrect launch configuration! Can not launch demo with "
-            "non empty `ft_sensor_ip` and `use_gazebo:=true`."
-        )
-
-    if not use_ft_sensor_bool and ee_id == "ati_mini45_with_camera":
-        raise RuntimeError(
-            "Incorrect launch configuration! Can not launch demo with "
-            "`use_ft_sensor:=false` and `ee_id:=ati_mini45_with_camera`."
-        )
-
     franka_hardware_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             [
@@ -180,6 +159,7 @@ def launch_setup(
             "ee_id": ee_id,
             "franka_controllers_params": franka_controllers_params,
             "franka_controllers_setup": franka_controllers_setup,
+            "ft_sensor": use_ft_sensor,
         }.items(),
         condition=UnlessCondition(
             OrSubstitution(
@@ -401,11 +381,6 @@ def generate_launch_description():
             default_value="false",
             description="Enable or disable use of force-torque sensor",
             choices=["true", "false"],
-        ),
-        DeclareLaunchArgument(
-            "ft_sensor_ip",
-            default_value="",
-            description="Hostname or IP address of the force-torque sensor.",
         ),
         DeclareLaunchArgument(
             "gz_verbose",

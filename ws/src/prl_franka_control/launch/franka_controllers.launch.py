@@ -57,7 +57,6 @@ def launch_setup(context):
             "--param-file",
             controller_params,
         ],
-        condition=IfCondition(simulation),
     )
     controllers_active = []
     # Default inactive controllers
