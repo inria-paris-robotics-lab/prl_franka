@@ -7,9 +7,9 @@
   <xacro:property name="arm_id" value="${setup['ROBOT']['arm_id']}"/>
   <xacro:property name="robot_ip" value="${setup['ROBOT']['robot_ip']}"/>
   <xacro:property name="prefix" value="${setup['ROBOT']['arm_prefix']}"/>
-  <xacro:property name="load_gripper" value="${setup['ROBOT']['load_gripper']}"/>
+  <xacro:property name="load_end_effector" value="${setup['ROBOT']['load_end_effector']}"/>
   <xacro:property name="ee_id" value="${setup['ROBOT']['ee_id']}"/>
-  <xacro:property name="hand" value="${setup['ROBOT']['load_gripper']}"/>
+  <xacro:property name="hand" value="${setup['ROBOT']['load_end_effector']}"/>
   <xacro:property name="with_sc" value="${setup['ROBOT']['self_collision_safety']}"/>
   <xacro:property name="ee_pose" value="${setup['ROBOT']['end_effector_pose']}"/>
   <xacro:property name="xyz_ee" value="${' '.join(map(str, ee_pose['xyz']))}"/>
@@ -130,7 +130,7 @@
   <!-- Where is the end-effector connected to, if different from the robot flange?  -->
   <xacro:arg name="special_connection" default="${ee_mount_parent}"/>
 
-  <xacro:if value="${ee_id == 'ball' and load_gripper}">
+  <xacro:if value="${ee_id == 'ball' and load_end_effector}">
     <xacro:include filename="$(find prl_franka_description)/urdf/end_effectors/ball/ball.urdf.xacro"/>
     <xacro:franka_robot
         arm_id="${arm_id}"

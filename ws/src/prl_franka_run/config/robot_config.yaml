@@ -12,7 +12,7 @@ ROBOT: # Arbitrary identifier for the first robot (a Mnemonic)
   arm_prefix: "" # Reserved for future use (e.g., robot unique prefix)
   namespace: "" # Namespace for robot, any string (empty string allowed - meaningful names recommended)
   robot_ip: "172.17.1.5" # Robot’s IP address or hostname
-  load_gripper: "true" # load the gripper model ("true" or "false")
+  load_end_effector: "true" # load the end effector ("true" or "false")
   end_effector_pose:
     xyz: [0.0, 0.0, 0.0] # End-effector position offset [x, y, z] in meters
     rpy: [0.0, 0.0, -2.3561]   # End-effector orientation offset [roll, pitch, yaw] in radians (if ft sensor is used, set to [0,0,-2.3561])

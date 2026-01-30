@@ -48,10 +48,9 @@ def launch_setup(
         )
     namespaces = config.get("namespaces", "")
     ee_id = config.get("ee_id", "franka_hand")
-    load_gripper = config.get("load_gripper", "true")
+    load_end_effector = config.get("load_end_effector", "true")
     robot_ip = config.get("robot_ip", "")
     arm_id = config.get("arm_id", "fr3")
-    gripper_type = config.get("gripper_type", "franka_gripper")
 
     aux_computer_ip = LaunchConfiguration("aux_computer_ip")
     aux_computer_user = LaunchConfiguration("aux_computer_user")
@@ -69,8 +68,8 @@ def launch_setup(
     franka_controllers_params = LaunchConfiguration("franka_controllers_params")
     franka_controllers_setup = LaunchConfiguration("franka_controllers_setup")
     initial_joint_position = LaunchConfiguration("initial_joint_position")
-
     use_ft_sensor = LaunchConfiguration("use_ft_sensor")
+    tare_ft_sensor = LaunchConfiguration("tare_ft_sensor")
 
     robot_ip_empty = robot_ip == ""
     aux_computer_ip_empty = context.perform_substitution(aux_computer_ip) == ""
@@ -160,6 +159,7 @@ def launch_setup(
             "franka_controllers_params": franka_controllers_params,
             "franka_controllers_setup": franka_controllers_setup,
             "ft_sensor": use_ft_sensor,
+            "tare_ft_sensor": tare_ft_sensor,
         }.items(),
         condition=UnlessCondition(
             OrSubstitution(
@@ -186,7 +186,7 @@ def launch_setup(
             "gz_world_path": gz_world_path,
             "use_ft_sensor": use_ft_sensor,
             "ee_id": ee_id,
-            "load_gripper": load_gripper,
+            "load_end_effector": load_end_effector,
         }.items(),
         condition=IfCondition(use_gazebo),
     )
@@ -380,6 +380,12 @@ def generate_launch_description():
             "use_ft_sensor",
             default_value="false",
             description="Enable or disable use of force-torque sensor",
+            choices=["true", "false"],
+        ),
+        DeclareLaunchArgument(
+            "tare_ft_sensor",
+            default_value="false",
+            description="Whether to tare the force torque sensor on startup.",
             choices=["true", "false"],
         ),
         DeclareLaunchArgument(

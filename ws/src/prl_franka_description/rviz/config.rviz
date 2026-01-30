@@ -7,6 +7,7 @@ Panels:
         - /Global Options1
         - /Status1
         - /RobotModel1
+        - /Wrench1
       Splitter Ratio: 0.7264705896377563
     Tree Height: 1107
   - Class: rviz_common/Selection
@@ -150,6 +151,25 @@ Visualization Manager:
       Update Interval: 0
       Value: true
       Visual Enabled: true
+    - Accept NaN Values: false
+      Alpha: 1
+      Arrow Width: 0.10000000149011612
+      Class: rviz_default_plugins/Wrench
+      Enabled: true
+      Force Arrow Scale: 0.02500000037252903
+      Force Color: 204; 51; 51
+      History Length: 1
+      Name: Wrench
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /robotiq_force_torque_sensor_broadcaster/wrench
+      Torque Arrow Scale: 0.25
+      Torque Color: 204; 204; 51
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -232,5 +252,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 2560
-  X: 0
-  Y: 31
+  X: 425
+  Y: 161

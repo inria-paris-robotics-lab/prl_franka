@@ -28,7 +28,7 @@ def launch_setup(
     gz_world_path = LaunchConfiguration("gz_world_path")
     use_ft_sensor = LaunchConfiguration("use_ft_sensor")
     ee_id = LaunchConfiguration("ee_id")
-    load_gripper = LaunchConfiguration("load_gripper")
+    load_end_effector = LaunchConfiguration("load_end_effector")
 
     gz_verbose_bool = context.perform_substitution(gz_verbose).lower() == "true"
     gz_headless_bool = context.perform_substitution(gz_headless).lower() == "true"
@@ -135,7 +135,7 @@ def launch_setup(
         launch_arguments={
             "gripper": ee_id_str,
         }.items(),
-        condition=IfCondition(load_gripper),
+        condition=IfCondition(load_end_effector),
     )
 
     return [
@@ -188,7 +188,7 @@ def generate_launch_description():
             description="Name of the end effector used.",
         ),
         DeclareLaunchArgument(
-            "load_gripper",
+            "load_end_effector",
             default_value="false",
             description="Whether to load the gripper model.",
             choices=["true", "false"],
