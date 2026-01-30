@@ -37,6 +37,82 @@
     <child link="fr3_attachment_link"/>
     <origin rpy="0 0 0" xyz="-0.6 0 0.095"/>
   </joint>
+  <!-- mount the fts to the robot -->
+  <joint name="ft300_fix" type="fixed">
+    <origin rpy="0 0 0" xyz="0 0 -0.01"/>
+    <parent link="fr3_link8"/>
+    <child link="ft300_mounting_plate"/>
+  </joint>
+  <!-- Link representing the FT300 force-torque sensor -->
+  <link name="ft300_sensor">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 -0.017"/>
+      <mass value="0.300"/>
+      <inertia ixx="0.000262" ixy="0" ixz="1e-06" iyx="0" iyy="0.000265" iyz="1e-06" izx="-1e-06" izy="1e-06" izz="0.000219"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://robotiq_ft_sensor_description/meshes/visual/robotiq_ft300.STL"/>
+      </geometry>
+      <material name="Robotiq-Black">
+        <color rgba="0.2 0.2 0.2 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://robotiq_ft_sensor_description/meshes/collision/robotiq_ft300.STL"/>
+      </geometry>
+    </collision>
+  </link>
+  <!-- Link representing the FT300 mounting plate -->
+  <link name="ft300_mounting_plate">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://robotiq_ft_sensor_description/meshes/visual/mountings/robotiq_ft300-G-062-COUPLING_G-50-4M6-1D6_20181119.STL"/>
+      </geometry>
+      <material name="Robotiq-Grey">
+        <color rgba="0.4 0.4 0.4 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://robotiq_ft_sensor_description/meshes/collision/mountings/robotiq_ft300-G-062-COUPLING_G-50-4M6-1D6_20181119.STL"/>
+      </geometry>
+    </collision>
+  </link>
+  <!-- Connect force sensor with mounting/coupling plate -->
+  <joint name="ft300_mounting_plate_joint" type="fixed">
+    <origin rpy="0 3.141592653589793 0" xyz="0 0 0.0415"/>
+    <parent link="ft300_mounting_plate"/>
+    <child link="ft300_sensor"/>
+  </joint>
+  <joint name="measurment_joint" type="fixed">
+    <origin rpy="0 3.141592653589793 -1.5707963267948966" xyz="0 0 0"/>
+    <parent link="ft300_sensor"/>
+    <child link="robotiq_ft_frame_id"/>
+  </joint>
+  <link name="robotiq_ft_frame_id"/>
+  <ros2_control name="robotiq_ft_sensor" type="sensor">
+    <hardware>
+      <plugin>robotiq_ft_sensor_hardware/RobotiqFTSensorHardware</plugin>
+      <param name="use_fake_mode">False</param>
+      <param name="max_retries">100</param>
+      <param name="read_rate">100</param>
+      <param name="ftdi_id"></param>
+    </hardware>
+    <sensor name="robotiq_ft_sensor">
+      <state_interface name="force.x"/>
+      <state_interface name="force.y"/>
+      <state_interface name="force.z"/>
+      <state_interface name="torque.x"/>
+      <state_interface name="torque.y"/>
+      <state_interface name="torque.z"/>
+    </sensor>
+  </ros2_control>
   <!-- safety_distance: Minimum safety distance in [m] by which the collision volumes are expanded and which is enforced during robot motions -->
   <!-- arm_id: Namespace of the robot arm. Serves to differentiate between arms in case of multiple instances. -->
   <!-- joint_limits: description of the joint limits that comes from a YAML file. Example definition: ${xacro.load_yaml('$(find franka_description)/robots/fr3/joint_limits.yaml')} -->
@@ -265,7 +341,7 @@
   </joint>
   <link name="fr3_ball_link">
     <visual>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <origin rpy="0 0 0" xyz="0 0 0.01"/>
       <geometry>
         <mesh filename="package://prl_franka_description/meshes/end_effectors/ball/ball.stl" scale="0.001 0.001 0.001"/>
       </geometry>
@@ -285,8 +361,8 @@
     </inertial>
   </link>
   <joint name="fr3_ball_joint" type="fixed">
-    <parent link="fr3_link8"/>
+    <parent link="robotiq_ft_frame_id"/>
     <child link="fr3_ball_link"/>
-    <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.01"/>
+    <origin rpy="0.0 0.0 -2.3561" xyz="0.0 0.0 0.0"/>
   </joint>
 </robot>

@@ -46,7 +46,7 @@ def launch_setup(context):
             "ros2",
             "service",
             "call",
-            "/io_and_status_controller/zero_ftsensor",
+            "/robotiq_ft_hardware_internal_robotiq_ft_sensor/zero_ftsensor",
             "std_srvs/srv/Trigger",
             "{}",
         ],
