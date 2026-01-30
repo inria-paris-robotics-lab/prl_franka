@@ -39,7 +39,7 @@
   </joint>
   <!-- mount the fts to the robot -->
   <joint name="ft300_fix" type="fixed">
-    <origin rpy="0 0 0" xyz="0 0 -0.01"/>
+    <origin rpy="0 0 -3.1415" xyz="0 0 -0.01"/>
     <parent link="fr3_link8"/>
     <child link="ft300_mounting_plate"/>
   </joint>
