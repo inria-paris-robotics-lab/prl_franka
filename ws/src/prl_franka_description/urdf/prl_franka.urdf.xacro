@@ -107,7 +107,7 @@
     <xacro:include filename="$(find robotiq_ft_sensor_description)/urdf/robotiq_ft300.urdf.xacro" />
     <xacro:include filename="$(find robotiq_ft_sensor_description)/urdf/robotiq_fts.ros2_control.xacro" />
       <xacro:robotiq_ft300 parent="${modified_prefix}${arm_id}_link8" tf_prefix="${modified_prefix}">
-        <origin xyz="0 0 -0.01" rpy="0 0 0"/>
+        <origin xyz="0 0 -0.01" rpy="0 0 -3.1415"/>
       </xacro:robotiq_ft300>
       <!-- args -->
       <xacro:arg name="use_fake_mode" default="false"/>
