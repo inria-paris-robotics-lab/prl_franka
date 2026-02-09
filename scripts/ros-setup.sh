@@ -14,7 +14,8 @@ source "ws/install/setup.bash"
 export GZ_SIM_SYSTEM_PLUGIN_PATH=$GZ_SIM_SYSTEM_PLUGIN_PATH:$(ros2 pkg prefix franka_ign_ros2_control)/lib
 PRL_FRANKA_PATH="$(ros2 pkg prefix prl_franka_description)/share"
 FRANKA_PATH="$(ros2 pkg prefix franka_description)/share"
-export GZ_SIM_RESOURCE_PATH="$GZ_SIM_RESOURCE_PATH:$PRL_FRANKA_PATH:$FRANKA_PATH"
+ROBOTIQ_PATH="$(ros2 pkg prefix robotiq_ft_sensor_description)/share"
+export GZ_SIM_RESOURCE_PATH="$GZ_SIM_RESOURCE_PATH:$PRL_FRANKA_PATH:$FRANKA_PATH:$ROBOTIQ_PATH"
 echo "[DEBUG] GZ_SIM_RESOURCE_PATH: $GZ_SIM_RESOURCE_PATH"
 
 # Autocompletion ROS 2
