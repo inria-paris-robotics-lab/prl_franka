@@ -123,7 +123,7 @@ ros2 launch prl_franka_description view_robot.launch.py
 
 ### 2. Simulation (Gazebo + RViz)
 
-Simulate the FRANKA in Gazebo with visualization:
+Simulate the robot in Gazebo with visualization:
 
 ```bash
 ros2 launch prl_franka_run franka.launch.py use_gazebo:=true use_rviz:=true
