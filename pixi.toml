@@ -9,7 +9,7 @@ version = "0.1.0"
 build_ws = "colcon build --symlink-install"
 
 [activation]
-
+scripts = ["scripts/ros-setup.sh"]
 env = { ROS_LOCALHOST_ONLY = "1", ROS_DOMAIN_ID = "42", LC_ALL = "en_US.UTF-8", LC_NUMERIC = "en_US.UTF-8"}
 
 

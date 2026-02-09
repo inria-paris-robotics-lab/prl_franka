@@ -4,7 +4,7 @@
 if [ ! -f "ws/install/setup.bash" ]; then
     echo "[INFO] ROS 2 workspace not built yet. Building..."
     cd ws
-    colcon build --symlink-install
+    ./build.sh
     cd ..
 fi
 
