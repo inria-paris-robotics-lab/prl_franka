@@ -11,19 +11,19 @@
     <child link="table_link"/>
     <origin rpy="0 0 0" xyz="0 0 0.68"/>
   </joint>
-  <material name="Blue">
-    <color rgba="0.0 0.11764705882352941 0.27450980392156865 1.0"/>
+  <material name="Beige">
+    <color rgba="0.7607843137254902 0.6274509803921569 0.5137254901960784 1.0"/>
   </material>
   <link name="table_link">
     <visual>
       <geometry>
         <mesh filename="package://prl_franka_description/meshes/table.stl" scale="0.001 0.001 0.001"/>
       </geometry>
-      <material name="Blue"/>
+      <material name="Beige"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://prl_franka_description/meshes/table.stl" scale="0.001 0.001 0.001"/>
+        <box size="1.0 1.0 0.1"/>
       </geometry>
     </collision>
     <inertial>
@@ -341,7 +341,7 @@
   </joint>
   <link name="fr3_ball_link">
     <visual>
-      <origin rpy="0 0 0" xyz="0 0 0.01"/>
+      <origin rpy="0 0 0" xyz="0 0 0.016"/>
       <geometry>
         <mesh filename="package://prl_franka_description/meshes/end_effectors/ball/ball.stl" scale="0.001 0.001 0.001"/>
       </geometry>
@@ -350,9 +350,9 @@
       </material>
     </visual>
     <collision>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <origin rpy="0 0 0" xyz="0 0 0.016"/>
       <geometry>
-        <mesh filename="package://prl_franka_description/meshes/end_effectors/ball/ball_hull.stl" scale="0.001 0.001 0.001"/>
+        <sphere radius="0.02"/>
       </geometry>
     </collision>
     <inertial>
@@ -363,6 +363,12 @@
   <joint name="fr3_ball_joint" type="fixed">
     <parent link="robotiq_ft_frame_id"/>
     <child link="fr3_ball_link"/>
-    <origin rpy="0.0 0.0 -2.3561" xyz="0.0 0.0 0.0"/>
+    <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+  </joint>
+  <link name="fr3_ee_frame"/>
+  <joint name="fr3_ee_joint" type="fixed">
+    <parent link="fr3_ball_link"/>
+    <child link="fr3_ee_frame"/>
+    <origin rpy="0 0 0" xyz="0 0 0.036"/>
   </joint>
 </robot>
