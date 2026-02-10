@@ -59,6 +59,8 @@ pixi shell
 
 ## 2. Build the ROS 2 Workspace
 
+Normally, Pixi should automatically build the ROS 2 workspace on the first launch. If you need to rebuild manually:
+
 ```bash
 cd ws
 colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
@@ -70,13 +72,8 @@ colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
 
 Before using the FRANKA hardware, configure your setup.
 
-### `prl_franka_robot_configuration`
 
-Edit the file:
-
-```
-prl_franka_run/config/robot_config.yaml
-```
+Edit the file: `prl_franka_run/config/robot_config.yaml`
 
 ## Robot Configuration File (`robot_config.yaml`)
 
