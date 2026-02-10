@@ -83,9 +83,9 @@
           <material name="Beige"/>
       </visual>
       <collision>
-          <origin xyz="0 0 -0.05" rpy="0 0 0"/>
+          <origin xyz="0 0 -0.365" rpy="0 0 0"/>
           <geometry>
-              <box size="1.0 1.0 0.1"/>
+              <box size="1.0 1.0 0.73"/>
           </geometry>
       </collision>
       <inertial>
