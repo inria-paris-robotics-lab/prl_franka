@@ -16,7 +16,7 @@
             <collision>
                 <origin xyz="0 0 0.016" rpy="0 0 0"/>
                 <geometry>
-                    <mesh filename="package://prl_franka_description/meshes/end_effectors/ball/ball_hull.stl" scale="0.001 0.001 0.001"/>
+                    <sphere radius="0.02"/>
                 </geometry>
             </collision>
             <inertial>
@@ -30,5 +30,14 @@
             <child link="${prefix}_ball_link"/>
             <origin xyz="${xyz_ee}" rpy="${rpy_ee}"/>
         </joint>
+
+        <link name="${prefix}_ee_frame"/>
+
+        <joint name="${prefix}_ee_joint" type="fixed">
+            <parent link="${prefix}_ball_link"/>
+            <child link="${prefix}_ee_frame"/>
+            <origin xyz="0 0 0.036" rpy="0 0 0"/>
+        </joint>
+
     </xacro:macro>
 </robot>

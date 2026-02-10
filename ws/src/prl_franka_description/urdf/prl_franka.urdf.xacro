@@ -68,8 +68,8 @@
     <origin xyz="0 0 0.68" rpy="0 0 0"/>
   </joint>
 
-  <material name="Blue">
-    <color rgba="${0/255} ${30/255} ${70/255} 1.0"/>
+  <material name="Beige">
+    <color rgba="${194/255} ${160/255} ${131/255} 1.0"/>
   </material>
 
   <xacro:arg name="table_scale" default="1 1 1"/>
@@ -80,12 +80,12 @@
           <geometry>
               <mesh filename="package://prl_franka_description/meshes/table.stl" scale="0.001 0.001 0.001"/>
           </geometry>
-          <material name="Blue"/>
+          <material name="Beige"/>
       </visual>
       <collision>
           <origin xyz="0 0 -0.05" rpy="0 0 0"/>
           <geometry>
-              <mesh filename="package://prl_franka_description/meshes/table.stl" scale="0.001 0.001 0.001"/>
+              <box size="1.0 1.0 0.1"/>
           </geometry>
       </collision>
       <inertial>
