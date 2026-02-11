@@ -119,14 +119,16 @@
     <xacro:arg name="ftdi_id" default=""/>
     <!-- robotiq sensor hardware -->
     <xacro:if value="$(arg ros2_control)">
-      <xacro:include filename="$(find robotiq_ft_sensor_description)/urdf/robotiq_fts.ros2_control.xacro" />
-      <xacro:robotiq_fts_ros2_control
-          tf_prefix="${modified_prefix}"
-          use_fake_mode="$(arg use_fake_mode)"
-          max_retries="$(arg max_retries)"
-          read_rate="$(arg read_rate)"
-          ftdi_id="$(arg ftdi_id)"
-      />
+      <xacro:if value="$(arg use_ft_sensor)">
+        <xacro:include filename="$(find robotiq_ft_sensor_description)/urdf/robotiq_fts.ros2_control.xacro" />
+        <xacro:robotiq_fts_ros2_control
+            tf_prefix="${modified_prefix}"
+            use_fake_mode="$(arg use_fake_mode)"
+            max_retries="$(arg max_retries)"
+            read_rate="$(arg read_rate)"
+            ftdi_id="$(arg ftdi_id)"
+        />
+      </xacro:if>
     </xacro:if>
     <xacro:property name="ee_mount_parent" value="${modified_prefix}robotiq_ft_frame_id"/>
   </xacro:if>
