@@ -53,6 +53,8 @@
   <!-- Append an underscore to the user-provided prefix, if non-empty. -->
   <xacro:property name="modified_prefix" value="${prefix + '_' if prefix else ''}"/>
 
+  <xacro:arg name="use_ft_sensor" default="false"/>
+
   <!-- Copy in arg because franka robot uses this arg in sub macro-->
   <xacro:arg name="hand" default="${hand}"/>
   <xacro:arg name="ee_id" default="${ee_id}"/>
@@ -107,16 +109,17 @@
   <!-- Force torque sensor -->
   <xacro:if value="${ft_sensor}">
     <xacro:include filename="$(find robotiq_ft_sensor_description)/urdf/robotiq_ft300.urdf.xacro" />
-    <xacro:include filename="$(find robotiq_ft_sensor_description)/urdf/robotiq_fts.ros2_control.xacro" />
-      <xacro:robotiq_ft300 parent="${modified_prefix}${arm_id}_link8" tf_prefix="${modified_prefix}">
-        <origin xyz="0 0 -0.004" rpy="0 0 -3.1415"/>
-      </xacro:robotiq_ft300>
-      <!-- args -->
-      <xacro:arg name="use_fake_mode" default="false"/>
-      <xacro:arg name="max_retries" default="100"/>
-      <xacro:arg name="read_rate" default="100"/>
-      <xacro:arg name="ftdi_id" default=""/>
-      <!-- robotiq sensor hardware -->
+    <xacro:robotiq_ft300 parent="${modified_prefix}${arm_id}_link8" prefix="${modified_prefix}">
+      <origin xyz="0 0 -0.004" rpy="0 0 0"/>
+    </xacro:robotiq_ft300>
+    <!-- args -->
+    <xacro:arg name="use_fake_mode" default="false"/>
+    <xacro:arg name="max_retries" default="100"/>
+    <xacro:arg name="read_rate" default="100"/>
+    <xacro:arg name="ftdi_id" default=""/>
+    <!-- robotiq sensor hardware -->
+    <xacro:if value="$(arg ros2_control)">
+      <xacro:include filename="$(find robotiq_ft_sensor_description)/urdf/robotiq_fts.ros2_control.xacro" />
       <xacro:robotiq_fts_ros2_control
           tf_prefix="${modified_prefix}"
           use_fake_mode="$(arg use_fake_mode)"
@@ -124,6 +127,7 @@
           read_rate="$(arg read_rate)"
           ftdi_id="$(arg ftdi_id)"
       />
+    </xacro:if>
     <xacro:property name="ee_mount_parent" value="${modified_prefix}robotiq_ft_frame_id"/>
   </xacro:if>
   <xacro:unless value="${ft_sensor}">

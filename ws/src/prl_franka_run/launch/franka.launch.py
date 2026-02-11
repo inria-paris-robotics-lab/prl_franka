@@ -204,6 +204,7 @@ def launch_setup(
         "gazebo_effort": use_gazebo,
         "with_sc": "false",
         "initial_joint_position": initial_joint_position,
+        "use_ft_sensor": use_ft_sensor,
     }
 
     robot_description_file_substitution = PathJoinSubstitution(
