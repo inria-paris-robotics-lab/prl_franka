@@ -5,7 +5,7 @@ repos:
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: check-yaml
-        exclude: 'ws/src/prl_franka_control/config/arm/default_controllers.yaml'
+        exclude: 'prl_franka_control/config/arm/default_controllers.yaml'
       - id: check-xml
       - id: check-merge-conflict
       - id: check-added-large-files
