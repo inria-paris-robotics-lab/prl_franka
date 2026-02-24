@@ -1,0 +1,4 @@
+[submodule "ws/src/robotiq"]
+	path = ws/src/robotiq
+	url = https://github.com/inria-paris-robotics-lab/robotiq.git
+	branch = ros2

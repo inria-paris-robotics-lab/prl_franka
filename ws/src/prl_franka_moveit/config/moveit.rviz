@@ -6,7 +6,7 @@ Panels:
       Expanded:
         - /MotionPlanning1
       Splitter Ratio: 0.5
-    Tree Height: 239
+    Tree Height: 723
   - Class: rviz_common/Help
     Name: Help
   - Class: rviz_common/Views
@@ -35,7 +35,7 @@ Visualization Manager:
       Plane Cell Count: 10
       Reference Frame: <Fixed Frame>
       Value: true
-    - Acceleration_Scaling_Factor: 1
+    - Acceleration_Scaling_Factor: 0.3
       Class: moveit_rviz_plugin/MotionPlanning
       Enabled: true
       Move Group Namespace: ""
@@ -74,16 +74,7 @@ Visualization Manager:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-          fr3_hand:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          fr3_hand_tcp:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-          fr3_leftfinger:
+          fr3_ball_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
@@ -132,11 +123,20 @@ Visualization Manager:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-          fr3_rightfinger:
+          ft300_mounting_plate:
             Alpha: 1
             Show Axes: false
             Show Trail: false
             Value: true
+          ft300_sensor:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          robotiq_ft_frame_id:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
           table_link:
             Alpha: 1
             Show Axes: false
@@ -165,7 +165,7 @@ Visualization Manager:
         Goal State Color: 250; 128; 0
         Interactive Marker Size: 0
         Joint Violation Color: 255; 0; 255
-        Planning Group: fr3_hand
+        Planning Group: fr3_arm
         Query Goal State: true
         Query Start State: false
         Show Workspace: false
@@ -196,16 +196,7 @@ Visualization Manager:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-          fr3_hand:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          fr3_hand_tcp:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-          fr3_leftfinger:
+          fr3_ball_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
@@ -254,11 +245,20 @@ Visualization Manager:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-          fr3_rightfinger:
+          ft300_mounting_plate:
             Alpha: 1
             Show Axes: false
             Show Trail: false
             Value: true
+          ft300_sensor:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          robotiq_ft_frame_id:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
           table_link:
             Alpha: 1
             Show Axes: false
@@ -268,7 +268,26 @@ Visualization Manager:
         Show Robot Collision: false
         Show Robot Visual: true
       Value: true
-      Velocity_Scaling_Factor: 0.9999999999999999
+      Velocity_Scaling_Factor: 0.2
+    - Accept NaN Values: false
+      Alpha: 1
+      Arrow Width: 0.10000000149011612
+      Class: rviz_default_plugins/Wrench
+      Enabled: true
+      Force Arrow Scale: 0.02500000037252903
+      Force Color: 204; 51; 51
+      History Length: 1
+      Name: Wrench
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /robotiq_force_torque_sensor_broadcaster/wrench
+      Torque Arrow Scale: 0.25
+      Torque Color: 204; 204; 51
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -287,30 +306,30 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 0.43134236335754395
+      Distance: 1.6002495288848877
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -0.22128848731517792
-        Y: 0.018221020698547363
-        Z: 1.170602798461914
+        X: -0.4475422203540802
+        Y: 0.19208924472332
+        Z: 1.1358165740966797
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.17499969899654388
+      Pitch: -0.20500029623508453
       Target Frame: base_link
       Value: Orbit (rviz_default_plugins)
-      Yaw: 0.14700111746788025
+      Yaw: 0.995181143283844
     Saved: ~
 Window Geometry:
   Displays:
     collapsed: false
-  Height: 975
+  Height: 2124
   Help:
     collapsed: false
   Hide Left Dock: false
@@ -319,9 +338,9 @@ Window Geometry:
     collapsed: false
   MotionPlanning - Trajectory Slider:
     collapsed: false
-  QMainWindow State: 000000ff00000000fd0000000100000000000002b400000375fc0200000005fb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000004100fffffffb000000100044006900730070006c006100790073010000003d00000172000000c900fffffffb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e006701000001b5000001fd0000017d00fffffffb0000000800480065006c0070000000029a0000006e0000006e00fffffffb0000000a0056006900650077007300000002fd000000b5000000a400ffffff000001f60000037500000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd0000000100000000000002b4000007f2fc0200000005fb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000004100fffffffb000000100044006900730070006c006100790073010000003d00000356000000c900fffffffb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e00670100000399000004960000017d00fffffffb0000000800480065006c0070000000029a0000006e0000006e00fffffffb0000000a0056006900650077007300000002fd000000b5000000a400ffffff00000c46000007f200000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Views:
     collapsed: false
-  Width: 1200
-  X: 344
-  Y: 512
+  Width: 3840
+  X: 0
+  Y: 0

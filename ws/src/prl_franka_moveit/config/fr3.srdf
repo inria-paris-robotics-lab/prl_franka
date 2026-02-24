@@ -14,8 +14,9 @@
     <xacro:property name="setup" value="${xacro.load_yaml('$(find prl_franka_run)/config/robot_config.yaml')}"/>
     <xacro:property name="arm_id" value="${setup['ROBOT']['arm_id']}"/>
     <xacro:property name="prefix" value="${setup['ROBOT']['arm_prefix']}"/>
-    <xacro:property name="load_gripper" value="${setup['ROBOT']['load_gripper']}"/>
+    <xacro:property name="load_end_effector" value="${setup['ROBOT']['load_end_effector']}"/>
     <xacro:property name="gripper_name" value="${setup['ROBOT']['ee_id']}"/>
+    <xacro:property name="use_ft_sensor" value="${setup['ROBOT']['force_torque_sensor']}"/>
 
     <xacro:include filename="$(find prl_franka_description)/srdf/${gripper_name}.srdf.xacro"/>
     <group name="fr3_arm">
@@ -31,8 +32,10 @@
         <joint name="${prefix}${arm_id}_joint8"/>
     </group>
     <!--Define group and groupe_state for the end effector-->
-    <xacro:if value="${load_gripper}">
-        <xacro:call macro="${gripper_name}_tool_group_define" group_name="gripper" prefix='${prefix}' arm_id='${arm_id}'/>
+    <xacro:if value="${load_end_effector}">
+        <xacro:if value="${gripper_name == 'franka_hand'}">
+            <xacro:call macro="${gripper_name}_tool_group_define" group_name="${gripper_name}" prefix='${prefix}' arm_id='${arm_id}'/>
+        </xacro:if>
     </xacro:if>
     <!--GROUP STATES: Purpose: Define a named state for a particular group, in terms of joint values. This is useful to define states like 'folded arms'-->
     <group_state name="home" group="${prefix}${arm_id}_arm">
@@ -55,13 +58,21 @@
     </group_state>
 
     <!--END EFFECTOR: Purpose: Represent information about an end effector.-->
-    <end_effector name="fr3_hand" parent_link="${prefix}${arm_id}_link8" group="gripper"/>
+    <xacro:if value="${gripper_name == 'franka_hand'}">
+        <end_effector name="fr3_hand" parent_link="${prefix}${arm_id}_link8" group="${gripper_name}"/>
+    </xacro:if>
+    <xacro:if value="${gripper_name == 'ball'}">
+        <end_effector name="fr3_ball" parent_link="${prefix}${arm_id}_link8" group="${prefix}${arm_id}_arm"/>
+    </xacro:if>
+    <xacro:unless value="${load_end_effector}">
+        <end_effector name="${prefix}${arm_id}_link8" parent_link="${prefix}${arm_id}_link7" group="${prefix}${arm_id}_arm"/>
+    </xacro:unless>
     <!--VIRTUAL JOINT: Purpose: this element defines a virtual joint between a robot link and an external frame of reference (considered fixed with respect to the robot)-->
     <virtual_joint name="virtual_joints" type="fixed" parent_frame="world" child_link="base_link"/>
     <!--DISABLE COLLISIONS: By default it is assumed that any link of the robot could potentially come into collision with any other link in the robot. This tag disables collision checking between a specified pair of links. -->
 
     <!-- Create autocolision and collision tags -->
-    <xacro:if value="${load_gripper}">
+    <xacro:if value="${load_end_effector}">
         <xacro:call macro="${gripper_name}_tool_autocol" prefix='${prefix}' arm_id='${arm_id}'/>
         <xacro:call macro="${gripper_name}_tool_col_with" prefix='${prefix}' arm_id='${arm_id}' link='${prefix}${arm_id}_link3'/>
         <xacro:call macro="${gripper_name}_tool_col_with" prefix='${prefix}' arm_id='${arm_id}' link='${prefix}${arm_id}_link4'/>
@@ -69,6 +80,27 @@
         <xacro:call macro="${gripper_name}_tool_col_with" prefix='${prefix}' arm_id='${arm_id}' link='${prefix}${arm_id}_link6'/>
         <xacro:call macro="${gripper_name}_tool_col_with" prefix='${prefix}' arm_id='${arm_id}' link='${prefix}${arm_id}_link7'/>
     </xacro:if>
+
+    <xacro:if value="${use_ft_sensor}">
+        <xacro:include filename="$(find robotiq_ft_sensor_description)/srdf/robotiq_ft300.srdf.xacro"/>
+        <xacro:call macro="robotiq_ft300_tool_autocol" prefix='${prefix}'/>
+        <xacro:call macro="robotiq_ft300_tool_col_with" prefix='${prefix}' link='${prefix}${arm_id}_link3'/>
+        <xacro:call macro="robotiq_ft300_tool_col_with" prefix='${prefix}' link='${prefix}${arm_id}_link4'/>
+        <xacro:call macro="robotiq_ft300_tool_col_with" prefix='${prefix}' link='${prefix}${arm_id}_link5'/>
+        <xacro:call macro="robotiq_ft300_tool_col_with" prefix='${prefix}' link='${prefix}${arm_id}_link6'/>
+        <xacro:call macro="robotiq_ft300_tool_col_with" prefix='${prefix}' link='${prefix}${arm_id}_link7'/>
+        <xacro:if value="${load_end_effector}">
+            <xacro:if value="${gripper_name == 'franka_hand'}">
+                <xacro:call macro="robotiq_ft300_tool_col_with" prefix='${prefix}' link='${prefix}${arm_id}_hand'/>
+                <xacro:call macro="robotiq_ft300_tool_col_with" prefix='${prefix}' link='${prefix}${arm_id}_leftfinger'/>
+                <xacro:call macro="robotiq_ft300_tool_col_with" prefix='${prefix}' link='${prefix}${arm_id}_rightfinger'/>
+            </xacro:if>
+            <xacro:if value="${gripper_name == 'ball'}">
+                <xacro:call macro="robotiq_ft300_tool_col_with" prefix='${prefix}' link='${prefix}${arm_id}_ball_link'/>
+            </xacro:if>
+        </xacro:if>
+    </xacro:if>
+
 
     <disable_collisions link1="${prefix}${arm_id}_link0" link2="${prefix}${arm_id}_link1" reason="Adjacent"/>
     <disable_collisions link1="${prefix}${arm_id}_link0" link2="${prefix}${arm_id}_link2" reason="Never"/>

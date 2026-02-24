@@ -5,6 +5,9 @@ from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
 
 from launch.conditions import IfCondition
+from controller_manager.launch_utils import (
+    generate_controllers_spawner_launch_description,  # noqa: I001
+)
 
 
 def controller_spawner(controllers, controller_params, active=True):
@@ -57,7 +60,6 @@ def launch_setup(context):
             "--param-file",
             controller_params,
         ],
-        condition=IfCondition(simulation),
     )
     controllers_active = []
     # Default inactive controllers

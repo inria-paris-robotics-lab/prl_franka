@@ -28,7 +28,7 @@ Clone the repository and set up the workspace:
 
 ```bash
 git clone https://github.com/inria-paris-robotics-lab/prl_franka.git
-cd prl_fr3
+cd prl_franka
 ```
 
 ---
@@ -59,6 +59,8 @@ pixi shell
 
 ## 2. Build the ROS 2 Workspace
 
+Normally, Pixi should automatically build the ROS 2 workspace on the first launch. If you need to rebuild manually:
+
 ```bash
 cd ws
 colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
@@ -68,15 +70,10 @@ colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
 
 ## Configure the Real Robot Setup
 
-Before using the FR3 hardware, configure your setup.
+Before using the FRANKA hardware, configure your setup.
 
-### `prl_fr3_robot_configuration`
 
-Edit the file:
-
-```
-prl_fr3_run/config/robot_config.yaml
-```
+Edit the file: `prl_franka_run/config/robot_config.yaml`
 
 ## Robot Configuration File (`robot_config.yaml`)
 
@@ -87,12 +84,13 @@ prl_fr3_run/config/robot_config.yaml
 | `arm_prefix`            | `""`               | Optional unique robot prefix (reserved for future use).                 |
 | `namespace`             | `""`               | ROS namespace. Should be unique to avoid topic conflicts.               |
 | `robot_ip`              | `"172.17.1.5"`     | IP or hostname of the real robot (ignored in simulation).               |
-| `load_gripper`          | `"true"`           | Whether to load the gripper model.                                      |
+| `load_end_effector`          | `"true"`           | Whether to load the end effector model.                                      |
 | `end_effector_pose`     | section            | Pose offset applied to the end-effector frame.                          |
 | `end_effector_pose.xyz` | `[0.0, 0.0, 0.01]` | Position offset `[x, y, z]` in meters.                                  |
 | `end_effector_pose.rpy` | `[0.0, 0.0, 0.0]`  | Orientation offset `[roll, pitch, yaw]` in radians.                     |
 | `ee_id`                 | `"ball"`           | End-effector type (`franka_hand`, `ball`, etc.).                        |
 | `self_collision_safety` | `"false"`          | Enable or disable self-collision safety checks.                         |
+| `force_torque_sensor`      | `"true"`                    | Enable force-torque sensor (`"true"` or `"false"`).                                         |
 
 
 ---
@@ -115,14 +113,14 @@ source install/setup.bash
 Visualize the robot model only (no simulation, no controllers):
 
 ```bash
-ros2 launch prl_fr3_description view_robot.launch.py
+ros2 launch prl_franka_description view_robot.launch.py
 ```
 
 ---
 
 ### 2. Simulation (Gazebo + RViz)
 
-Simulate the FR3 in Gazebo with visualization:
+Simulate the robot in Gazebo with visualization:
 
 ```bash
 ros2 launch prl_franka_run franka.launch.py use_gazebo:=true use_rviz:=true
@@ -132,13 +130,13 @@ ros2 launch prl_franka_run franka.launch.py use_gazebo:=true use_rviz:=true
 
 ### 3. Real Robot Execution
 
-To control the real FR3:
+To control the real robot:
 
 1. Ensure the robot brakes are released and the FCI is active (blue light).
 2. Launch the driver and controllers:
 
 ```bash
-ros2 launch prl_fr3_run franka.launch.py use_gazebo:=false use_rviz:=true
+ros2 launch prl_franka_run franka.launch.py use_gazebo:=false use_rviz:=true
 ```
 
 ---
@@ -166,7 +164,7 @@ ros2 launch prl_fr3_run franka.launch.py use_gazebo:=false use_rviz:=true
 ---
 > [!IMPORTANT]
 > **Real-Time Kernel**
-> Running the real FR3 reliably often requires a Linux kernel with **PREEMPT_RT** patches for stable `libfranka` communication.
+> Running the real robot reliably often requires a Linux kernel with **PREEMPT_RT** patches for stable `libfranka` communication.
 >
 > **Network Configuration**
 > Ensure your machine is on the same subnet as the robot to avoid connectivity issues.
