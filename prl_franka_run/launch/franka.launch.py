@@ -57,6 +57,7 @@ def launch_setup(
     on_aux_computer = LaunchConfiguration("on_aux_computer")
     use_rviz = LaunchConfiguration("use_rviz")
     rviz_config_path = LaunchConfiguration("rviz_config_path")
+    plotjuggler_config_file = LaunchConfiguration("plotjuggler_config_file")
     use_gazebo = LaunchConfiguration("use_gazebo")
     use_sim_time = LaunchConfiguration("use_gazebo")
     gz_verbose = LaunchConfiguration("gz_verbose")
@@ -70,6 +71,7 @@ def launch_setup(
     initial_joint_position = LaunchConfiguration("initial_joint_position")
     use_ft_sensor = LaunchConfiguration("use_ft_sensor")
     tare_ft_sensor = LaunchConfiguration("tare_ft_sensor")
+    use_plotjuggler = LaunchConfiguration("use_plotjuggler")
 
     robot_ip_empty = robot_ip == ""
     aux_computer_ip_empty = context.perform_substitution(aux_computer_ip) == ""
@@ -260,12 +262,21 @@ def launch_setup(
         condition=IfCondition(use_rviz),
     )
 
+    plotjuggler_node = Node(
+        package="plotjuggler",
+        executable="plotjuggler",
+        parameters=[{"use_sim_time": use_sim_time}],
+        condition=IfCondition(LaunchConfiguration("use_plotjuggler")),
+        arguments=["--layout", plotjuggler_config_file],
+    )
+
     return [
         franka_hardware_launch,
         franka_simulation_launch,
         robot_state_publisher_node,
         joint_state_publisher_node,
         rviz_node,
+        plotjuggler_node,
     ]
 
 
@@ -342,6 +353,17 @@ def generate_launch_description():
             description="Path to RViz configuration file",
         ),
         DeclareLaunchArgument(
+            "plotjuggler_config_file",
+            default_value=PathJoinSubstitution(
+                [
+                    FindPackageShare("prl_franka_description"),
+                    "plotjuggler",
+                    "config.xml",
+                ]
+            ),
+            description="Path to PlotJuggler configuration file",
+        ),
+        DeclareLaunchArgument(
             "aux_computer_ip",
             default_value="",
             description="Hostname or IP address of the auxiliary computer "
@@ -400,6 +422,12 @@ def generate_launch_description():
             default_value="false",
             description="Whether to launch Gazebo in headless mode "
             + "(no GUI is launched, only physics server).",
+            choices=["true", "false"],
+        ),
+        DeclareLaunchArgument(
+            "use_plotjuggler",
+            default_value="false",
+            description="Whether to launch PlotJuggler for real-time plotting of robot data.",
             choices=["true", "false"],
         ),
     ]

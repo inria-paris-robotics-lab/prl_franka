@@ -1,0 +1,11 @@
+<library path="prl_franka_controllers">
+    <class name="prl_franka_controllers/TorquePassthroughController"
+        type="prl_franka_controllers::TorquePassthroughController"
+        base_class_type="controller_interface::ControllerInterface">
+        <description>
+            A passthrough torque controller that subscribes to a JointTrajectory topic and
+            sends each trajectory point's torque directly to the robot at each update cycle.
+            The point index is incremented at each controller update.
+        </description>
+    </class>
+</library>
