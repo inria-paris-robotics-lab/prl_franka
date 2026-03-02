@@ -9,4 +9,4 @@ robotiq_force_torque_sensor_broadcaster:
       - torque.x
       - torque.y
       - torque.z
-    frame_id: robotiq_ft_frame_id
+    frame_id: fr3_ee_frame

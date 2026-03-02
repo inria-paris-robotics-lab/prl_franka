@@ -34,6 +34,10 @@ torque_passthrough_controller:
   ros__parameters:
     type: "prl_franka_controllers/TorquePassthroughController"
     arm_id: "fr3"
+    k_p: 0.0
+    k_i: 20.0
+    k_q: 40.0
+    k_v: 20.0
 
 gravity_compensation_example_controller:
   ros__parameters:

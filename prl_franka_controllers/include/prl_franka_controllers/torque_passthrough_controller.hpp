@@ -15,6 +15,7 @@
 
 #include "franka_semantic_components/franka_robot_model.hpp"
 #include <trajectory_msgs/msg/joint_trajectory.hpp>
+#include <trajectory_msgs/msg/joint_trajectory_point.hpp>
 
 namespace prl_franka_controllers {
 
@@ -41,6 +42,7 @@ public:
   on_deactivate(const rclcpp_lifecycle::State &previous_state) override;
 
   Eigen::VectorXd computeExternalTorque();
+  Eigen::VectorXd computeTauBias();
 
 private:
   std::string arm_id_;
@@ -48,10 +50,13 @@ private:
   std::unordered_map<std::string, size_t> state_interface_map_;
 
   double k_p_ = 0.0;
-  double k_i_ = 2.0;
+  double k_i_ = 0.0;
+  double k_q_ = 0.0;
+  double k_v_ = 0.0;
+  double dt_ = 0.001; // Assuming a control loop running at 1 kHz
   std::array<double, 16> NE_T_EE = {1, 0, 0, 0, 0, 1, 0,    0,
                                     0, 0, 1, 0, 0, 0, 0.07, 1};
-  Eigen::VectorXd initial_tau_ext_, tau_error_integral_, tau_ext_;
+  Eigen::VectorXd tau_bias_, tau_error_integral_, tau_ext_;
 
   // Trajectory FIFO
   std::deque<trajectory_msgs::msg::JointTrajectoryPoint> trajectory_fifo_;
@@ -61,6 +66,8 @@ private:
       trajectory_sub_;
   rclcpp::Publisher<prl_franka_msgs::msg::TorqueData>::SharedPtr
       torque_cmd_pub_;
+  rclcpp::Publisher<trajectory_msgs::msg::JointTrajectoryPoint>::SharedPtr
+      pos_and_vel_pub_;
 
   // Robot model
   std::unique_ptr<franka_semantic_components::FrankaRobotModel>

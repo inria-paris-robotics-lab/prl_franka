@@ -1,51 +1,51 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <root>
  <tabbed_widget name="Main Window" parent="main_window">
-  <Tab containers="1" tab_name="tab1">
+  <Tab tab_name="tab1" containers="1">
    <Container>
-    <DockSplitter orientation="-" sizes="1" count="1">
-     <DockSplitter orientation="|" sizes="0.5;0.5" count="2">
-      <DockSplitter orientation="-" sizes="0.333634;0.332732;0.333634" count="3">
+    <DockSplitter orientation="-" count="1" sizes="1">
+     <DockSplitter orientation="|" count="2" sizes="0.5;0.5">
+      <DockSplitter orientation="-" count="3" sizes="0.35;0.35;0.3">
        <DockArea name="...">
-        <plot mode="TimeSeries" flip_y="false" flip_x="false" line_width="1.0">
-         <range top="0.049279" bottom="-0.134010" right="8.054494" left="3.054679"/>
+        <plot flip_y="false" flip_x="false" line_width="1.0" mode="TimeSeries">
+         <range bottom="-0.058631" top="0.124657" right="22.603779" left="13.718789"/>
          <limitY/>
          <curve name="/franka/joint_states/fr3_joint1/effort" color="#1f77b4"/>
         </plot>
        </DockArea>
        <DockArea name="...">
-        <plot mode="TimeSeries" flip_y="false" flip_x="false" line_width="1.0">
-         <range top="-0.056341" bottom="-0.243795" right="8.054494" left="3.054679"/>
+        <plot flip_y="false" flip_x="false" line_width="1.0" mode="TimeSeries">
+         <range bottom="-2.889875" top="-2.706587" right="22.603779" left="13.718789"/>
          <limitY/>
          <curve name="/franka/joint_states/fr3_joint3/effort" color="#1ac938"/>
         </plot>
        </DockArea>
        <DockArea name="...">
-        <plot mode="TimeSeries" flip_y="false" flip_x="false" line_width="1.0">
-         <range top="0.645737" bottom="0.603439" right="8.054494" left="3.054679"/>
+        <plot flip_y="false" flip_x="false" line_width="1.0" mode="TimeSeries">
+         <range bottom="0.569222" top="0.625939" right="22.603779" left="13.718789"/>
          <limitY/>
          <curve name="/franka/joint_states/fr3_joint5/effort" color="#f14cc1"/>
         </plot>
        </DockArea>
       </DockSplitter>
-      <DockSplitter orientation="-" sizes="0.333634;0.332732;0.333634" count="3">
+      <DockSplitter orientation="-" count="3" sizes="0.35;0.35;0.3">
        <DockArea name="...">
-        <plot mode="TimeSeries" flip_y="false" flip_x="false" line_width="1.0">
-         <range top="-27.363842" bottom="-27.576290" right="8.054494" left="3.054679"/>
+        <plot flip_y="false" flip_x="false" line_width="1.0" mode="TimeSeries">
+         <range bottom="-44.374371" top="-44.136929" right="22.603779" left="13.718789"/>
          <limitY/>
          <curve name="/franka/joint_states/fr3_joint2/effort" color="#d62728"/>
         </plot>
        </DockArea>
        <DockArea name="...">
-        <plot mode="TimeSeries" flip_y="false" flip_x="false" line_width="1.0">
-         <range top="18.349070" bottom="18.190775" right="8.054494" left="3.054679"/>
+        <plot flip_y="false" flip_x="false" line_width="1.0" mode="TimeSeries">
+         <range bottom="13.805636" top="14.018085" right="22.603779" left="13.718789"/>
          <limitY/>
          <curve name="/franka/joint_states/fr3_joint4/effort" color="#ff7f0e"/>
         </plot>
        </DockArea>
        <DockArea name="...">
-        <plot mode="TimeSeries" flip_y="false" flip_x="false" line_width="1.0">
-         <range top="1.757954" bottom="1.701237" right="8.054494" left="3.054679"/>
+        <plot flip_y="false" flip_x="false" line_width="1.0" mode="TimeSeries">
+         <range bottom="1.801785" top="1.865231" right="22.603779" left="13.718789"/>
          <limitY/>
          <curve name="/franka/joint_states/fr3_joint6/effort" color="#9467bd"/>
         </plot>
@@ -55,59 +55,53 @@
     </DockSplitter>
    </Container>
   </Tab>
-  <Tab containers="1" tab_name="tab2">
+  <Tab tab_name="tab3" containers="1">
    <Container>
-    <DockSplitter orientation="-" sizes="1" count="1">
-     <DockSplitter orientation="|" sizes="0.5;0.5" count="2">
-      <DockSplitter orientation="-" sizes="0.333634;0.332732;0.333634" count="3">
+    <DockSplitter orientation="-" count="1" sizes="1">
+     <DockSplitter orientation="|" count="2" sizes="0.5;0.5">
+      <DockSplitter orientation="-" count="3" sizes="0.35;0.35;0.3">
        <DockArea name="...">
-        <plot mode="TimeSeries" flip_y="false" flip_x="false" line_width="1.0">
-         <range top="0.103546" bottom="-0.079742" right="8.054464" left="3.054649"/>
+        <plot flip_y="false" flip_x="false" line_width="1.0" mode="TimeSeries">
+         <range bottom="-0.036499" top="0.236503" right="22.602794" left="13.716825"/>
          <limitY/>
-         <curve name="/torque_passthrough_controller/torque_commanded/torque_command[0]" color="#17becf"/>
-         <curve name="/torque_passthrough_controller/torque_commanded/torque_external[0]" color="#f14cc1"/>
+         <curve name="/robotiq_force_torque_sensor_broadcaster/wrench/wrench/force/x" color="#1f77b4"/>
         </plot>
        </DockArea>
        <DockArea name="...">
-        <plot mode="TimeSeries" flip_y="false" flip_x="false" line_width="1.0">
-         <range top="0.056123" bottom="-0.131355" right="8.054464" left="3.054649"/>
+        <plot flip_y="false" flip_x="false" line_width="1.0" mode="TimeSeries">
+         <range bottom="-0.228251" top="0.118235" right="22.602794" left="13.716825"/>
          <limitY/>
-         <curve name="/torque_passthrough_controller/torque_commanded/torque_command[2]" color="#1f77b4"/>
-         <curve name="/torque_passthrough_controller/torque_commanded/torque_external[2]" color="#17becf"/>
+         <curve name="/robotiq_force_torque_sensor_broadcaster/wrench/wrench/force/y" color="#d62728"/>
         </plot>
        </DockArea>
        <DockArea name="...">
-        <plot mode="TimeSeries" flip_y="false" flip_x="false" line_width="1.0">
-         <range top="0.021102" bottom="-0.021202" right="8.054464" left="3.054649"/>
+        <plot flip_y="false" flip_x="false" line_width="1.0" mode="TimeSeries">
+         <range bottom="-0.023750" top="0.133751" right="22.602794" left="13.716825"/>
          <limitY/>
-         <curve name="/torque_passthrough_controller/torque_commanded/torque_command[4]" color="#1ac938"/>
-         <curve name="/torque_passthrough_controller/torque_commanded/torque_external[4]" color="#1f77b4"/>
+         <curve name="/robotiq_force_torque_sensor_broadcaster/wrench/wrench/force/z" color="#1ac938"/>
         </plot>
        </DockArea>
       </DockSplitter>
-      <DockSplitter orientation="-" sizes="0.333634;0.332732;0.333634" count="3">
+      <DockSplitter orientation="-" count="3" sizes="0.35;0.35;0.3">
        <DockArea name="...">
-        <plot mode="TimeSeries" flip_y="false" flip_x="false" line_width="1.0">
-         <range top="0.208817" bottom="-0.005093" right="8.054464" left="3.054649"/>
+        <plot flip_y="false" flip_x="false" line_width="1.0" mode="TimeSeries">
+         <range bottom="-0.003200" top="0.005200" right="22.602794" left="13.716825"/>
          <limitY/>
-         <curve name="/torque_passthrough_controller/torque_commanded/torque_command[1]" color="#bcbd22"/>
-         <curve name="/torque_passthrough_controller/torque_commanded/torque_external[1]" color="#9467bd"/>
+         <curve name="/robotiq_force_torque_sensor_broadcaster/wrench/wrench/torque/x" color="#ff7f0e"/>
         </plot>
        </DockArea>
        <DockArea name="...">
-        <plot mode="TimeSeries" flip_y="false" flip_x="false" line_width="1.0">
-         <range top="0.153832" bottom="-0.004711" right="8.054464" left="3.054649"/>
+        <plot flip_y="false" flip_x="false" line_width="1.0" mode="TimeSeries">
+         <range bottom="-0.004150" top="0.002150" right="22.602794" left="13.716825"/>
          <limitY/>
-         <curve name="/torque_passthrough_controller/torque_commanded/torque_command[3]" color="#d62728"/>
-         <curve name="/torque_passthrough_controller/torque_commanded/torque_external[3]" color="#bcbd22"/>
+         <curve name="/robotiq_force_torque_sensor_broadcaster/wrench/wrench/torque/y" color="#f14cc1"/>
         </plot>
        </DockArea>
        <DockArea name="...">
-        <plot mode="TimeSeries" flip_y="false" flip_x="false" line_width="1.0">
-         <range top="0.103141" bottom="-0.002516" right="8.054464" left="3.054649"/>
+        <plot flip_y="false" flip_x="false" line_width="1.0" mode="TimeSeries">
+         <range bottom="-0.002175" top="0.005175" right="22.602794" left="13.716825"/>
          <limitY/>
-         <curve name="/torque_passthrough_controller/torque_commanded/torque_command[5]" color="#ff7f0e"/>
-         <curve name="/torque_passthrough_controller/torque_commanded/torque_external[5]" color="#d62728"/>
+         <curve name="/robotiq_force_torque_sensor_broadcaster/wrench/wrench/torque/z" color="#9467bd"/>
         </plot>
        </DockArea>
       </DockSplitter>
@@ -115,19 +109,193 @@
     </DockSplitter>
    </Container>
   </Tab>
-  <Tab containers="1" tab_name="tab3">
+  <Tab tab_name="tab2" containers="1">
    <Container>
-    <DockSplitter orientation="-" sizes="1" count="1">
-     <DockArea name="...">
-      <plot mode="TimeSeries" flip_y="false" flip_x="false" line_width="1.0">
-       <range top="1.000000" bottom="0.000000" right="1.000000" left="0.000000"/>
-       <limitY/>
-      </plot>
-     </DockArea>
+    <DockSplitter orientation="-" count="1" sizes="1">
+     <DockSplitter orientation="|" count="2" sizes="0.5;0.5">
+      <DockSplitter orientation="-" count="3" sizes="0.333805;0.33239;0.333805">
+       <DockArea name="...">
+        <plot flip_y="false" flip_x="false" line_width="1.0" mode="TimeSeries">
+         <range bottom="-0.133896" top="0.157700" right="22.602778" left="13.716807"/>
+         <limitY/>
+         <curve name="/torque_passthrough_controller/torque_commanded/torque_command[0]" color="#17becf"/>
+         <curve name="/torque_passthrough_controller/torque_commanded/torque_external[0]" color="#f14cc1"/>
+         <curve name="/torque_passthrough_controller/torque_commanded/torque_desired[0]" color="#1f77b4"/>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot flip_y="false" flip_x="false" line_width="1.0" mode="TimeSeries">
+         <range bottom="-0.134177" top="0.158005" right="22.602778" left="13.716807"/>
+         <limitY/>
+         <curve name="/torque_passthrough_controller/torque_commanded/torque_command[2]" color="#1f77b4"/>
+         <curve name="/torque_passthrough_controller/torque_commanded/torque_external[2]" color="#17becf"/>
+         <curve name="/torque_passthrough_controller/torque_commanded/torque_desired[2]" color="#1ac938"/>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot flip_y="false" flip_x="false" line_width="1.0" mode="TimeSeries">
+         <range bottom="-0.043420" top="0.049833" right="22.602778" left="13.716807"/>
+         <limitY/>
+         <curve name="/torque_passthrough_controller/torque_commanded/torque_command[4]" color="#1ac938"/>
+         <curve name="/torque_passthrough_controller/torque_commanded/torque_external[4]" color="#1f77b4"/>
+         <curve name="/torque_passthrough_controller/torque_commanded/torque_desired[4]" color="#f14cc1"/>
+        </plot>
+       </DockArea>
+      </DockSplitter>
+      <DockSplitter orientation="-" count="3" sizes="0.333805;0.33239;0.333805">
+       <DockArea name="...">
+        <plot flip_y="false" flip_x="false" line_width="1.0" mode="TimeSeries">
+         <range bottom="-0.133378" top="0.133343" right="22.602778" left="13.716807"/>
+         <limitY/>
+         <curve name="/torque_passthrough_controller/torque_commanded/torque_command[1]" color="#bcbd22"/>
+         <curve name="/torque_passthrough_controller/torque_commanded/torque_external[1]" color="#9467bd"/>
+         <curve name="/torque_passthrough_controller/torque_commanded/torque_desired[1]" color="#d62728"/>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot flip_y="false" flip_x="false" line_width="1.0" mode="TimeSeries">
+         <range bottom="-0.134156" top="0.157956" right="22.602778" left="13.716807"/>
+         <limitY/>
+         <curve name="/torque_passthrough_controller/torque_commanded/torque_command[3]" color="#d62728"/>
+         <curve name="/torque_passthrough_controller/torque_commanded/torque_external[3]" color="#bcbd22"/>
+         <curve name="/torque_passthrough_controller/torque_commanded/torque_desired[3]" color="#ff7f0e"/>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot flip_y="false" flip_x="false" line_width="1.0" mode="TimeSeries">
+         <range bottom="-0.049037" top="0.049031" right="22.602778" left="13.716807"/>
+         <limitY/>
+         <curve name="/torque_passthrough_controller/torque_commanded/torque_command[5]" color="#ff7f0e"/>
+         <curve name="/torque_passthrough_controller/torque_commanded/torque_external[5]" color="#d62728"/>
+         <curve name="/torque_passthrough_controller/torque_commanded/torque_desired[5]" color="#9467bd"/>
+        </plot>
+       </DockArea>
+      </DockSplitter>
+     </DockSplitter>
     </DockSplitter>
    </Container>
   </Tab>
-  <currentTabIndex index="0"/>
+  <Tab tab_name="tab2" containers="1">
+   <Container>
+    <DockSplitter orientation="-" count="1" sizes="1">
+     <DockSplitter orientation="|" count="2" sizes="0.5;0.5">
+      <DockSplitter orientation="-" count="3" sizes="0.35;0.35;0.3">
+       <DockArea name="...">
+        <plot flip_y="false" flip_x="false" line_width="1.0" mode="TimeSeries">
+         <range bottom="-0.003953" top="0.162085" right="22.603779" left="13.716795"/>
+         <limitY/>
+         <curve name="/franka/joint_states/fr3_joint1/position" color="#1f77b4"/>
+         <curve name="/torque_passthrough_controller/pos_vel_data/positions[0]" color="#1ac938"/>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot flip_y="false" flip_x="false" line_width="1.0" mode="TimeSeries">
+         <range bottom="-0.140771" top="0.003433" right="22.603779" left="13.716795"/>
+         <limitY/>
+         <curve name="/franka/joint_states/fr3_joint3/position" color="#1ac938"/>
+         <curve name="/torque_passthrough_controller/pos_vel_data/positions[2]" color="#f14cc1"/>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot flip_y="false" flip_x="false" line_width="1.0" mode="TimeSeries">
+         <range bottom="-0.006744" top="0.276507" right="22.603779" left="13.716795"/>
+         <limitY/>
+         <curve name="/franka/joint_states/fr3_joint5/position" color="#f14cc1"/>
+         <curve name="/torque_passthrough_controller/pos_vel_data/positions[4]" color="#17becf"/>
+        </plot>
+       </DockArea>
+      </DockSplitter>
+      <DockSplitter orientation="-" count="3" sizes="0.35;0.35;0.3">
+       <DockArea name="...">
+        <plot flip_y="false" flip_x="false" line_width="1.0" mode="TimeSeries">
+         <range bottom="-0.021759" top="0.892136" right="22.603779" left="13.716795"/>
+         <limitY/>
+         <curve name="/franka/joint_states/fr3_joint2/position" color="#d62728"/>
+         <curve name="/torque_passthrough_controller/pos_vel_data/positions[1]" color="#ff7f0e"/>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot flip_y="false" flip_x="false" line_width="1.0" mode="TimeSeries">
+         <range bottom="-1.941832" top="0.047362" right="22.603779" left="13.716795"/>
+         <limitY/>
+         <curve name="/franka/joint_states/fr3_joint4/position" color="#ff7f0e"/>
+         <curve name="/torque_passthrough_controller/pos_vel_data/positions[3]" color="#9467bd"/>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot flip_y="false" flip_x="false" line_width="1.0" mode="TimeSeries">
+         <range bottom="-0.068660" top="2.815044" right="22.603779" left="13.716795"/>
+         <limitY/>
+         <curve name="/franka/joint_states/fr3_joint6/position" color="#9467bd"/>
+         <curve name="/torque_passthrough_controller/pos_vel_data/positions[5]" color="#bcbd22"/>
+        </plot>
+       </DockArea>
+      </DockSplitter>
+     </DockSplitter>
+    </DockSplitter>
+   </Container>
+  </Tab>
+  <Tab tab_name="tab3" containers="1">
+   <Container>
+    <DockSplitter orientation="-" count="3" sizes="0.35;0.35;0.3">
+     <DockSplitter orientation="|" count="2" sizes="0.5;0.5">
+      <DockArea name="...">
+       <plot flip_y="false" flip_x="false" line_width="1.0" mode="TimeSeries">
+        <range bottom="-0.003557" top="0.003109" right="22.603779" left="13.716795"/>
+        <limitY/>
+        <curve name="/franka/joint_states/fr3_joint1/velocity" color="#17becf"/>
+        <curve name="/torque_passthrough_controller/pos_vel_data/velocities[0]" color="#f14cc1"/>
+       </plot>
+      </DockArea>
+      <DockArea name="...">
+       <plot flip_y="false" flip_x="false" line_width="1.0" mode="TimeSeries">
+        <range bottom="-0.003533" top="0.004050" right="22.603779" left="13.716795"/>
+        <limitY/>
+        <curve name="/franka/joint_states/fr3_joint2/velocity" color="#bcbd22"/>
+        <curve name="/torque_passthrough_controller/pos_vel_data/velocities[1]" color="#9467bd"/>
+       </plot>
+      </DockArea>
+     </DockSplitter>
+     <DockSplitter orientation="|" count="2" sizes="0.5;0.5">
+      <DockArea name="...">
+       <plot flip_y="false" flip_x="false" line_width="1.0" mode="TimeSeries">
+        <range bottom="-0.004242" top="0.003416" right="22.603779" left="13.716795"/>
+        <limitY/>
+        <curve name="/franka/joint_states/fr3_joint3/velocity" color="#1f77b4"/>
+        <curve name="/torque_passthrough_controller/pos_vel_data/velocities[2]" color="#17becf"/>
+       </plot>
+      </DockArea>
+      <DockArea name="...">
+       <plot flip_y="false" flip_x="false" line_width="1.0" mode="TimeSeries">
+        <range bottom="-0.003475" top="0.003555" right="22.603779" left="13.716795"/>
+        <limitY/>
+        <curve name="/franka/joint_states/fr3_joint4/velocity" color="#d62728"/>
+        <curve name="/torque_passthrough_controller/pos_vel_data/velocities[3]" color="#bcbd22"/>
+       </plot>
+      </DockArea>
+     </DockSplitter>
+     <DockSplitter orientation="|" count="2" sizes="0.5;0.5">
+      <DockArea name="...">
+       <plot flip_y="false" flip_x="false" line_width="1.0" mode="TimeSeries">
+        <range bottom="-0.003184" top="0.003562" right="22.603779" left="13.716795"/>
+        <limitY/>
+        <curve name="/franka/joint_states/fr3_joint5/velocity" color="#1ac938"/>
+        <curve name="/torque_passthrough_controller/pos_vel_data/velocities[4]" color="#1f77b4"/>
+       </plot>
+      </DockArea>
+      <DockArea name="...">
+       <plot flip_y="false" flip_x="false" line_width="1.0" mode="TimeSeries">
+        <range bottom="-0.003959" top="0.004276" right="22.603779" left="13.716795"/>
+        <limitY/>
+        <curve name="/franka/joint_states/fr3_joint6/velocity" color="#ff7f0e"/>
+        <curve name="/torque_passthrough_controller/pos_vel_data/velocities[5]" color="#d62728"/>
+       </plot>
+      </DockArea>
+     </DockSplitter>
+    </DockSplitter>
+   </Container>
+  </Tab>
+  <currentTabIndex index="2"/>
  </tabbed_widget>
  <use_relative_time_offset enabled="1"/>
  <!-- - - - - - - - - - - - - - - -->
@@ -152,7 +320,7 @@
    <max_array_size value="100"/>
    <boolean_strings_to_number value="true"/>
    <remove_suffix_from_strings value="true"/>
-   <selected_topics value="/franka/joint_states;/torque_passthrough_controller/torque_commanded"/>
+   <selected_topics value="/franka/joint_states;/robotiq_force_torque_sensor_broadcaster/wrench;/torque_passthrough_controller/pos_vel_data;/torque_passthrough_controller/torque_commanded"/>
   </plugin>
   <plugin ID="UDP Server"/>
   <plugin ID="WebSocket Server"/>
