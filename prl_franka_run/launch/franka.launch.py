@@ -51,6 +51,8 @@ def launch_setup(
     load_end_effector = config.get("load_end_effector", "true")
     robot_ip = config.get("robot_ip", "")
     arm_id = config.get("arm_id", "fr3")
+    use_ft_sensor = config.get("use_ft_sensor","false")
+    tare_ft_sensor = config.get("tare_ft_sensor", "false")
 
     aux_computer_ip = LaunchConfiguration("aux_computer_ip")
     aux_computer_user = LaunchConfiguration("aux_computer_user")
@@ -69,8 +71,6 @@ def launch_setup(
     franka_controllers_params = LaunchConfiguration("franka_controllers_params")
     franka_controllers_setup = LaunchConfiguration("franka_controllers_setup")
     initial_joint_position = LaunchConfiguration("initial_joint_position")
-    use_ft_sensor = LaunchConfiguration("use_ft_sensor")
-    tare_ft_sensor = LaunchConfiguration("tare_ft_sensor")
     use_plotjuggler = LaunchConfiguration("use_plotjuggler")
 
     robot_ip_empty = robot_ip == ""
@@ -206,7 +206,7 @@ def launch_setup(
         "gazebo_effort": use_gazebo,
         "with_sc": "false",
         "initial_joint_position": initial_joint_position,
-        "use_ft_sensor": use_ft_sensor.perform(context),
+        "use_ft_sensor": use_ft_sensor,
     }
 
     robot_description_file_substitution = PathJoinSubstitution(

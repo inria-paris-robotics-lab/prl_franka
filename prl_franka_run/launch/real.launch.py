@@ -138,7 +138,7 @@ def launch_setup(
             ]
         ),
         launch_arguments={
-            "force_torque_sensor": LaunchConfiguration("ft_sensor"),
+            "use_ft_sensor": LaunchConfiguration("ft_sensor"),
             "tare_ft_sensor": tare_ft_sensor,
         }.items(),
     )

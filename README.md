@@ -90,7 +90,7 @@ Edit the file: `prl_franka_run/config/robot_config.yaml`
 | `end_effector_pose.rpy` | `[0.0, 0.0, 0.0]`  | Orientation offset `[roll, pitch, yaw]` in radians.                     |
 | `ee_id`                 | `"ball"`           | End-effector type (`franka_hand`, `ball`, etc.).                        |
 | `self_collision_safety` | `"false"`          | Enable or disable self-collision safety checks.                         |
-| `force_torque_sensor`      | `"true"`                    | Enable force-torque sensor (`"true"` or `"false"`).                                         |
+| `use_ft_sensor`      | `"true"`                    | Enable force-torque sensor (`"true"` or `"false"`).                                         |
 
 
 ---

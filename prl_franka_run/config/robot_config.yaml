@@ -18,4 +18,5 @@ ROBOT: # Arbitrary identifier for the first robot (a Mnemonic)
     rpy: [0.0, 0.0, 0.0]   # End-effector orientation offset [roll, pitch, yaw] in radians (if ft sensor is used, set to [0,0,-2.3561])
   ee_id: "ball" # End-effector with which the robot is equipped ("franka_hand", "ball")
   self_collision_safety: "false" # Disable self-collision safety checks ("true" or "false")
-  force_torque_sensor: "true" # Enable force-torque sensor ("true" or "false")
+  use_ft_sensor: "false" # Enable force-torque sensor ("true" or "false")
+  tare_ft_sensor: "false" # Enable the tare of the ft sensor on startup

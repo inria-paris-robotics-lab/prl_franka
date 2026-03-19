@@ -18,7 +18,7 @@ from launch.event_handlers import OnProcessExit
 
 def launch_setup(context):
     # Initialize Arguments
-    force_torque_sensor = LaunchConfiguration("force_torque_sensor")
+    use_ft_sensor = LaunchConfiguration("use_ft_sensor")
     tare_ft_sensor = LaunchConfiguration("tare_ft_sensor")
     # Start the controller based on the argument
     ft_sensor_controller = Node(
@@ -39,7 +39,7 @@ def launch_setup(context):
             ),
             "robotiq_force_torque_sensor_broadcaster",
         ],
-        condition=IfCondition(force_torque_sensor),
+        condition=IfCondition(use_ft_sensor),
     )
     tare_ft_sensor_cmd = ExecuteProcess(
         cmd=[
@@ -51,7 +51,7 @@ def launch_setup(context):
             "{}",
         ],
         output="log",
-        condition=IfCondition(AndSubstitution(tare_ft_sensor, force_torque_sensor)),
+        condition=IfCondition(AndSubstitution(tare_ft_sensor, use_ft_sensor)),
     )
     return [
         ft_sensor_controller,
@@ -68,7 +68,7 @@ def generate_launch_description():
     declared_arguments = []
     declared_arguments.append(
         DeclareLaunchArgument(
-            "force_torque_sensor",
+            "use_ft_sensor",
             description="Whether to load the force torque sensor controller.",
             default_value="false",
             choices=["true", "false"],
