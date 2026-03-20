@@ -16,7 +16,7 @@
     <xacro:property name="prefix" value="${setup['ROBOT']['arm_prefix']}"/>
     <xacro:property name="load_end_effector" value="${setup['ROBOT']['load_end_effector']}"/>
     <xacro:property name="gripper_name" value="${setup['ROBOT']['ee_id']}"/>
-    <xacro:property name="use_ft_sensor" value="${setup['ROBOT']['force_torque_sensor']}"/>
+    <xacro:property name="use_ft_sensor" value="${setup['ROBOT']['use_ft_sensor']}"/>
 
     <xacro:include filename="$(find prl_franka_description)/srdf/${gripper_name}.srdf.xacro"/>
     <group name="fr3_arm">
