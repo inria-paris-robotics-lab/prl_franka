@@ -7,7 +7,8 @@
             <joint name="${prefix}${arm_id}_hand_joint"/>
         </group>
         <group_state name="open" group="${group_name}">
-            <joint name="${prefix}${arm_id}_finger_joint1" value="0.04"/>
+            <!-- 78 mm: real hands measure max_width slightly below 80 mm at homing (e.g. 79.5 mm) -->
+            <joint name="${prefix}${arm_id}_finger_joint1" value="0.039"/>
         </group_state>
         <group_state name="close" group="${group_name}">
             <joint name="${prefix}${arm_id}_finger_joint1" value="0"/>

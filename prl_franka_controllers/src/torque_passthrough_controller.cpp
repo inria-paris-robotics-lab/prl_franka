@@ -1,4 +1,7 @@
 #include "prl_franka_controllers/torque_passthrough_controller.hpp"
+#include <pinocchio/algorithm/joint-configuration.hpp>
+#include <pinocchio/algorithm/rnea.hpp>
+#include <pinocchio/parsers/urdf.hpp>
 #include <pluginlib/class_list_macros.hpp>
 
 namespace prl_franka_controllers {
@@ -20,9 +23,11 @@ TorquePassthroughController::state_interface_configuration() const {
   state_interfaces_config.type =
       controller_interface::interface_configuration_type::INDIVIDUAL;
   // Add all state interfaces required by the FrankaRobotModel
-  for (const auto &franka_robot_model_name :
-       franka_robot_model_->get_state_interface_names()) {
-    state_interfaces_config.names.push_back(franka_robot_model_name);
+  if (franka_robot_model_) {
+    for (const auto &franka_robot_model_name :
+         franka_robot_model_->get_state_interface_names()) {
+      state_interfaces_config.names.push_back(franka_robot_model_name);
+    }
   }
   // Add the standard joint state interfaces (position, velocity, effort) for
   // each joint
@@ -39,11 +44,12 @@ TorquePassthroughController::state_interface_configuration() const {
 
 controller_interface::CallbackReturn TorquePassthroughController::on_init() {
   try {
-    auto_declare<std::string>("arm_id", "fr3");
+    auto_declare<std::string>("arm_id", "fr3v2");
     auto_declare<double>("k_p", 0.0);
     auto_declare<double>("k_i", 0.0);
     auto_declare<double>("k_q", 0.0);
     auto_declare<double>("k_v", 0.0);
+    auto_declare<std::string>("gravity_source", "franka");
     if (!get_node()->get_parameter("arm_id", arm_id_)) {
       RCLCPP_FATAL(get_node()->get_logger(), "Failed to get arm_id parameter");
       return CallbackReturn::ERROR;
@@ -62,6 +68,15 @@ controller_interface::CallbackReturn TorquePassthroughController::on_init() {
     }
     if (!get_node()->get_parameter("k_v", k_v_)) {
       RCLCPP_FATAL(get_node()->get_logger(), "Failed to get k_v parameter");
+      return CallbackReturn::ERROR;
+    }
+    gravity_source_ = get_node()->get_parameter("gravity_source").as_string();
+    if (gravity_source_ != "franka" && gravity_source_ != "urdf" &&
+        gravity_source_ != "none") {
+      RCLCPP_FATAL(
+          get_node()->get_logger(),
+          "gravity_source must be 'franka', 'urdf' or 'none', got '%s'",
+          gravity_source_.c_str());
       return CallbackReturn::ERROR;
     }
     // Init vectors
@@ -101,10 +116,31 @@ controller_interface::CallbackReturn TorquePassthroughController::on_configure(
           "/torque_passthrough_controller/pos_vel_data", 10);
 
   try {
-    franka_robot_model_ =
-        std::make_unique<franka_semantic_components::FrankaRobotModel>(
-            arm_id_ + "/" + k_robot_model_interface_name,
-            arm_id_ + "/" + k_robot_state_interface_name);
+    if (gravity_source_ == "franka") {
+      franka_robot_model_ =
+          std::make_unique<franka_semantic_components::FrankaRobotModel>(
+              arm_id_ + "/" + k_robot_model_interface_name,
+              arm_id_ + "/" + k_robot_state_interface_name);
+    } else if (gravity_source_ == "urdf") {
+      pinocchio::urdf::buildModelFromXML(get_robot_description(), pin_model_);
+      pin_data_ = std::make_unique<pinocchio::Data>(pin_model_);
+      pin_q_ = pinocchio::neutral(pin_model_);
+      pin_q_idx_.clear();
+      pin_v_idx_.clear();
+      for (size_t i = 1; i <= num_joints_; ++i) {
+        const std::string joint = arm_id_ + "_joint" + std::to_string(i);
+        if (!pin_model_.existJointName(joint)) {
+          RCLCPP_ERROR(get_node()->get_logger(),
+                       "Joint %s not in robot_description", joint.c_str());
+          return CallbackReturn::ERROR;
+        }
+        const auto id = pin_model_.getJointId(joint);
+        pin_q_idx_.push_back(pin_model_.joints[id].idx_q());
+        pin_v_idx_.push_back(pin_model_.joints[id].idx_v());
+      }
+    }
+    RCLCPP_INFO(get_node()->get_logger(), "Gravity source: %s",
+                gravity_source_.c_str());
   } catch (const std::exception &e) {
     RCLCPP_ERROR(get_node()->get_logger(), "Error creating model: %s",
                  e.what());
@@ -220,11 +256,7 @@ controller_interface::CallbackReturn TorquePassthroughController::on_deactivate(
 }
 
 Eigen::VectorXd TorquePassthroughController::computeExternalTorque() {
-  // Get gravity compensation torques from the robot model
-  std::array<double, 7> gravity_array =
-      franka_robot_model_->getGravityForceVector();
-  Eigen::Map<const Eigen::Matrix<double, 7, 1>> tau_gravity(
-      gravity_array.data());
+  const Eigen::VectorXd tau_gravity = gravityTorque();
   // Get measured torque from robot state interfaces
   Eigen::VectorXd tau_measured = Eigen::VectorXd::Zero(num_joints_);
   for (size_t i = 0; i < num_joints_; ++i) {
@@ -238,10 +270,7 @@ Eigen::VectorXd TorquePassthroughController::computeExternalTorque() {
 }
 
 Eigen::VectorXd TorquePassthroughController::computeTauBias() {
-  // Get initial gravity compensation torques from the robot
-  std::array<double, 7> gravity_array =
-      franka_robot_model_->getGravityForceVector();
-  Eigen::Map<Eigen::Matrix<double, 7, 1>> gravity_vec(gravity_array.data());
+  const Eigen::VectorXd gravity_vec = gravityTorque();
   Eigen::VectorXd initial_tau_measured = Eigen::VectorXd::Zero(num_joints_);
 
   for (size_t i = 0; i < num_joints_; ++i) {
@@ -258,6 +287,28 @@ Eigen::VectorXd TorquePassthroughController::computeTauBias() {
   }
 
   return initial_tau_measured - gravity_vec;
+}
+
+Eigen::VectorXd TorquePassthroughController::gravityTorque() {
+  Eigen::VectorXd tau_gravity = Eigen::VectorXd::Zero(num_joints_);
+  if (gravity_source_ == "franka") {
+    const std::array<double, 7> g =
+        franka_robot_model_->getGravityForceVector();
+    for (size_t i = 0; i < num_joints_; ++i)
+      tau_gravity(i) = g[i];
+  } else if (gravity_source_ == "urdf") {
+    for (size_t i = 0; i < num_joints_; ++i) {
+      const std::string name =
+          arm_id_ + "_joint" + std::to_string(i + 1) + "/position";
+      pin_q_(pin_q_idx_[i]) =
+          state_interfaces_[state_interface_map_.at(name)].get_value();
+    }
+    const Eigen::VectorXd &g =
+        pinocchio::computeGeneralizedGravity(pin_model_, *pin_data_, pin_q_);
+    for (size_t i = 0; i < num_joints_; ++i)
+      tau_gravity(i) = g(pin_v_idx_[i]);
+  }
+  return tau_gravity; // "none": effort state already excludes gravity
 }
 
 } // namespace prl_franka_controllers

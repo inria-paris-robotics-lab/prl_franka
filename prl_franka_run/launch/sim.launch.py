@@ -33,6 +33,12 @@ def launch_setup(
     gz_verbose_bool = context.perform_substitution(gz_verbose).lower() == "true"
     gz_headless_bool = context.perform_substitution(gz_headless).lower() == "true"
     gz_world_path_str = context.perform_substitution(gz_world_path)
+    if not gz_world_path_str:
+        gz_world_path_str = os.path.join(
+            get_package_share_directory("prl_franka_description"),
+            "worlds",
+            "prl_franka.sdf",
+        )
     use_ft_sensor_bool = context.perform_substitution(use_ft_sensor).lower() == "true"
     ee_id_str = context.perform_substitution(ee_id).lower()
     controller_param_file = os.path.join(
@@ -40,10 +46,8 @@ def launch_setup(
         "config/arm",
         "arm_controllers.yaml",
     )
-    config_controller_path = os.path.join(
-        get_package_share_directory("prl_franka_control"),
-        "config/arm",
-        "controller_setup.yaml",
+    config_controller_path = LaunchConfiguration("franka_controllers_setup").perform(
+        context
     )
     with open(config_controller_path, "r") as setup_file:
         config_controller = yaml.safe_load(setup_file)
@@ -89,6 +93,26 @@ def launch_setup(
         output="screen",
     )
 
+    camera_bridge_node = Node(
+        package="ros_gz_bridge",
+        executable="parameter_bridge",
+        name="camera_bridge",
+        parameters=[
+            {
+                "use_sim_time": True,
+                "config_file": PathJoinSubstitution(
+                    [
+                        FindPackageShare("prl_franka_run"),
+                        "config/gazebo",
+                        "gz_bridge_cameras.yaml",
+                    ]
+                ),
+            }
+        ],
+        output="screen",
+        condition=IfCondition(LaunchConfiguration("activate_cameras")),
+    )
+
     robot_spawner_node = Node(
         package="ros_gz_sim",
         executable="create",
@@ -116,7 +140,13 @@ def launch_setup(
             "active_controller": str(active_controllers),
             "loaded_controllers": str(inactive_controller),
             "controller_file": str(controller_param_file),
-            "simulation": "true",
+            "controller_override_file": PathJoinSubstitution(
+                [
+                    FindPackageShare("prl_franka_control"),
+                    "config/arm",
+                    "arm_controllers_gazebo.yaml",
+                ]
+            ),
         }.items(),
     )
 
@@ -141,6 +171,7 @@ def launch_setup(
     return [
         gazebo_empty_world,
         ros_gz_bridge_node,
+        camera_bridge_node,
         robot_spawner_node,
         RegisterEventHandler(
             event_handler=OnProcessExit(
@@ -167,14 +198,9 @@ def generate_launch_description():
         ),
         DeclareLaunchArgument(
             "gz_world_path",
-            default_value=PathJoinSubstitution(
-                [
-                    FindPackageShare("franka_description"),
-                    "worlds",
-                    "empty.sdf",
-                ]
-            ),
-            description="Path to Gazebo world SDF file.",
+            default_value="",
+            description="Gazebo world SDF. Empty: prl_franka_description/worlds/prl_franka.sdf "
+            + "(Franka's sensors world with bullet-featherstone physics).",
         ),
         DeclareLaunchArgument(
             "use_ft_sensor",
@@ -186,6 +212,23 @@ def generate_launch_description():
             "ee_id",
             default_value="franka_hand",
             description="Name of the end effector used.",
+        ),
+        DeclareLaunchArgument(
+            "activate_cameras",
+            default_value="false",
+            description="Bridge the simulated camera streams (gz_bridge_cameras.yaml).",
+            choices=["true", "false"],
+        ),
+        DeclareLaunchArgument(
+            "franka_controllers_setup",
+            default_value=PathJoinSubstitution(
+                [
+                    FindPackageShare("prl_franka_configuration"),
+                    "config",
+                    "controller_setup.yaml",
+                ]
+            ),
+            description="Path to the yaml file used to define which controllers to load and activate.",
         ),
         DeclareLaunchArgument(
             "load_end_effector",

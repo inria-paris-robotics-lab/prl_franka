@@ -121,6 +121,9 @@ def launch_setup(
         ),
         launch_arguments={
             "robot_ip": robot_ip,
+            # franka_gripper >= v3: both are required (joint names <robot_type>_finger_jointN)
+            "robot_type": LaunchConfiguration("arm_id"),
+            "namespace": "",
         }.items(),
         condition=IfCondition(franka_hand_condition),
     )
@@ -140,6 +143,7 @@ def launch_setup(
         launch_arguments={
             "use_ft_sensor": LaunchConfiguration("ft_sensor"),
             "tare_ft_sensor": tare_ft_sensor,
+            "activate_cameras": LaunchConfiguration("activate_cameras"),
         }.items(),
     )
 
@@ -160,9 +164,9 @@ def generate_launch_description():
         ),
         DeclareLaunchArgument(
             "arm_id",
-            default_value="fer",
-            description="ID of the type of arm used. Supported values: fer, fr3, fp3.",
-            choices=["fer", "fr3", "fp3"],
+            default_value="fr3v2",
+            description="ID of the type of arm used. Supported values: fer, fr3, fr3v2, fp3.",
+            choices=["fer", "fr3", "fr3v2", "fp3"],
         ),
         DeclareLaunchArgument(
             "disable_collision_safety",
@@ -185,8 +189,8 @@ def generate_launch_description():
             "franka_controllers_setup",
             default_value=PathJoinSubstitution(
                 [
-                    FindPackageShare("prl_franka_control"),
-                    "config/arm",
+                    FindPackageShare("prl_franka_configuration"),
+                    "config",
                     "controller_setup.yaml",
                 ]
             ),
@@ -212,6 +216,12 @@ def generate_launch_description():
             "ft_sensor",
             default_value="false",
             description="Whether to load the force torque sensor controller.",
+            choices=["true", "false"],
+        ),
+        DeclareLaunchArgument(
+            "activate_cameras",
+            default_value="false",
+            description="Launch the fixed camera drivers (see sensors.launch.py).",
             choices=["true", "false"],
         ),
         DeclareLaunchArgument(

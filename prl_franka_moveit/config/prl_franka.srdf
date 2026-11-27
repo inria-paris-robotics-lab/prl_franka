@@ -3,7 +3,7 @@
     This is a format for representing semantic information about the robot structure.
     A URDF file must exist for this robot as well, where the joints and the links that are referenced are defined
 -->
-<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="fr3">
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="prl_franka">
 
     <!--GROUPS: Representation of a set of joints and links. This can be useful for specifying DOF to plan for, defining arms, end effectors, etc-->
     <!--LINKS: When a link is specified, the parent joint of that link (if it exists) is automatically included-->
@@ -11,12 +11,12 @@
     <!--CHAINS: When a chain is specified, all the links along the chain (including endpoints) are included in the group. Additionally, all the joints that are parents to included links are also included. This means that joints along the chain and the parent joint of the base link are included in the group-->
     <!--SUBGROUPS: Groups can also be formed by referencing to already defined group names-->
 
-    <xacro:property name="setup" value="${xacro.load_yaml('$(find prl_franka_run)/config/robot_config.yaml')}"/>
+    <xacro:property name="setup" value="${xacro.load_yaml('$(find prl_franka_configuration)/config/robot_config.yaml')}"/>
     <xacro:property name="arm_id" value="${setup['ROBOT']['arm_id']}"/>
     <xacro:property name="prefix" value="${setup['ROBOT']['arm_prefix']}"/>
-    <xacro:property name="load_end_effector" value="${setup['ROBOT']['load_end_effector']}"/>
+    <xacro:property name="load_end_effector" value="${str(setup['ROBOT']['load_end_effector']).lower() == 'true'}"/>
     <xacro:property name="gripper_name" value="${setup['ROBOT']['ee_id']}"/>
-    <xacro:property name="use_ft_sensor" value="${setup['ROBOT']['use_ft_sensor']}"/>
+    <xacro:property name="use_ft_sensor" value="${str(setup['ROBOT']['use_ft_sensor']).lower() == 'true'}"/>
 
     <xacro:include filename="$(find prl_franka_description)/srdf/${gripper_name}.srdf.xacro"/>
     <group name="fr3_arm">
@@ -27,8 +27,6 @@
         <joint name="${prefix}${arm_id}_joint5"/>
         <joint name="${prefix}${arm_id}_joint6"/>
         <joint name="${prefix}${arm_id}_joint7"/>
-        <joint name="${prefix}${arm_id}_fr3_attachment_link_joint"/>
-        <joint name="${prefix}${arm_id}_attachment_joint"/>
         <joint name="${prefix}${arm_id}_joint8"/>
     </group>
     <!--Define group and groupe_state for the end effector-->
@@ -38,7 +36,7 @@
         </xacro:if>
     </xacro:if>
     <!--GROUP STATES: Purpose: Define a named state for a particular group, in terms of joint values. This is useful to define states like 'folded arms'-->
-    <group_state name="home" group="${prefix}${arm_id}_arm">
+    <group_state name="home" group="fr3_arm">
         <joint name="${prefix}${arm_id}_joint1" value="0"/>
         <joint name="${prefix}${arm_id}_joint2" value="0"/>
         <joint name="${prefix}${arm_id}_joint3" value="0"/>
@@ -47,7 +45,7 @@
         <joint name="${prefix}${arm_id}_joint6" value="1.5708"/>
         <joint name="${prefix}${arm_id}_joint7" value="0"/>
     </group_state>
-    <group_state name="work" group="${prefix}${arm_id}_arm">
+    <group_state name="work" group="fr3_arm">
         <joint name="${prefix}${arm_id}_joint1" value="0"/>
         <joint name="${prefix}${arm_id}_joint2" value="0"/>
         <joint name="${prefix}${arm_id}_joint3" value="0"/>
@@ -56,29 +54,74 @@
         <joint name="${prefix}${arm_id}_joint6" value="1.5708"/>
         <joint name="${prefix}${arm_id}_joint7" value="0"/>
     </group_state>
-    <group_state name="pierre" group="${prefix}${arm_id}_arm">
-        <joint name="${prefix}${arm_id}_joint1" value="0.1569865033"/>
-        <joint name="${prefix}${arm_id}_joint2" value="0.8719170472"/>
-        <joint name="${prefix}${arm_id}_joint3" value="-0.1362778895"/>
-        <joint name="${prefix}${arm_id}_joint4" value="-1.8942218238"/>
-        <joint name="${prefix}${arm_id}_joint5" value="0.2747687247"/>
-        <joint name="${prefix}${arm_id}_joint6" value="2.7481935710"/>
-        <joint name="${prefix}${arm_id}_joint7" value="1.3850780726"/>
+    <!-- store: 0, -60, 0, -170, 0, 105, -135 deg -->
+    <group_state name="store" group="fr3_arm">
+        <joint name="${prefix}${arm_id}_joint1" value="0.0000000000"/>
+        <joint name="${prefix}${arm_id}_joint2" value="-1.0471975512"/>
+        <joint name="${prefix}${arm_id}_joint3" value="0.0000000000"/>
+        <joint name="${prefix}${arm_id}_joint4" value="-2.9670597284"/>
+        <joint name="${prefix}${arm_id}_joint5" value="0.0000000000"/>
+        <joint name="${prefix}${arm_id}_joint6" value="1.8325957146"/>
+        <joint name="${prefix}${arm_id}_joint7" value="-2.3561944902"/>
     </group_state>
     <!--END EFFECTOR: Purpose: Represent information about an end effector.-->
     <xacro:if value="${gripper_name == 'franka_hand'}">
         <end_effector name="fr3_hand" parent_link="${prefix}${arm_id}_link8" group="${gripper_name}"/>
     </xacro:if>
     <xacro:if value="${gripper_name == 'ball'}">
-        <end_effector name="fr3_ball" parent_link="${prefix}${arm_id}_link8" group="${prefix}${arm_id}_arm"/>
+        <end_effector name="fr3_ball" parent_link="${prefix}${arm_id}_link8" group="fr3_arm"/>
     </xacro:if>
     <xacro:unless value="${load_end_effector}">
-        <end_effector name="${prefix}${arm_id}_link8" parent_link="${prefix}${arm_id}_link7" group="${prefix}${arm_id}_arm"/>
+        <end_effector name="${prefix}${arm_id}_link8" parent_link="${prefix}${arm_id}_link7" group="fr3_arm"/>
     </xacro:unless>
     <!--VIRTUAL JOINT: Purpose: this element defines a virtual joint between a robot link and an external frame of reference (considered fixed with respect to the robot)-->
     <virtual_joint name="virtual_joints" type="fixed" parent_frame="world" child_link="base_link"/>
     <!--DISABLE COLLISIONS: By default it is assumed that any link of the robot could potentially come into collision with any other link in the robot. This tag disables collision checking between a specified pair of links. -->
 
+    <!-- External cameras -->
+    <xacro:macro name="external_camera_col" params="number camera">
+        <disable_collisions link1="fixed_camera_${number}_bb" link2="fixed_camera_${number}_sj" reason="Adjacent"/>
+        <disable_collisions link1="fixed_camera_${number}_vt" link2="fixed_camera_${number}_sj" reason="Adjacent"/>
+        <disable_collisions link1="fixed_camera_${number}_vt" link2="fixed_hr_${number}" reason="Adjacent"/>
+        <disable_collisions link1="fixed_camera_${number}_vt" link2="fixed_camera_${number}_bb" reason="Adjacent"/>
+
+        <disable_collisions link1="fixed_camera_${number}_bb" link2="table_link" reason="Adjacent"/>
+        <disable_collisions link1="fixed_camera_${number}_sj" link2="table_link" reason="Adjacent"/>
+        <disable_collisions link1="fixed_camera_${number}_vt" link2="table_link" reason="Adjacent"/>
+        <disable_collisions link1="fixed_hr_${number}" link2="table_link" reason="Adjacent"/>
+
+        <xacro:if value="${camera['type'] == 'femto-mega'}">
+            <disable_collisions link1="${camera['name_prefix']}_camera_base_link" link2="fixed_camera_${number}_vt" reason="Adjacent"/>
+            <disable_collisions link1="${camera['name_prefix']}_camera_base_link" link2="fixed_camera_${number}_sj" reason="Adjacent"/>
+            <disable_collisions link1="${camera['name_prefix']}_camera_base_link" link2="fixed_camera_${number}_bb" reason="Adjacent"/>
+            <disable_collisions link1="${camera['name_prefix']}_camera_base_link" link2="table_link" reason="Never"/>
+        </xacro:if>
+        <xacro:unless value="${camera['type'] == 'femto-mega'}">
+            <disable_collisions link1="${camera['name_prefix']}_camera_link" link2="fixed_camera_${number}_vt" reason="Adjacent"/>
+            <disable_collisions link1="${camera['name_prefix']}_camera_link" link2="fixed_camera_${number}_sj" reason="Adjacent"/>
+            <disable_collisions link1="${camera['name_prefix']}_camera_link" link2="fixed_camera_${number}_bb" reason="Adjacent"/>
+            <disable_collisions link1="${camera['name_prefix']}_camera_link" link2="table_link" reason="Never"/>
+        </xacro:unless>
+
+    </xacro:macro>
+
+    <xacro:macro name="external_cameras_loop" params="cameras number">
+        <xacro:if value="${cameras}">
+                <!-- pop first item from list -->
+                <xacro:property name="camera" value="${cameras.pop(0)}"/>
+                <xacro:external_camera_col number="${number}" camera="${camera}"/>
+
+                <!-- recursive call -->
+                <xacro:external_cameras_loop cameras="${cameras}" number="${number+1}"/>
+        </xacro:if>
+    </xacro:macro>
+
+    <!-- Iterate over all cameras using recursive function (only if a fixed cameras file is set, as in mantis.urdf.xacro) -->
+    <xacro:if value="${setup.get('fixed_cameras_file') is not None}">
+        <xacro:property name="fixed_cameras_file" value="$(find prl_franka_configuration)/config/${setup['fixed_cameras_file']}"/>
+        <xacro:property name="fixed_cameras" value="${xacro.load_yaml(fixed_cameras_file)}"/>
+        <xacro:external_cameras_loop cameras="${fixed_cameras}" number="0"/>
+    </xacro:if>
     <!-- Create autocolision and collision tags -->
     <xacro:if value="${load_end_effector}">
         <xacro:call macro="${gripper_name}_tool_autocol" prefix='${prefix}' arm_id='${arm_id}'/>
@@ -111,6 +154,10 @@
 
 
     <disable_collisions link1="${prefix}${arm_id}_link0" link2="${prefix}${arm_id}_link1" reason="Adjacent"/>
+    <!-- cable guard box: wraps link0, sits on the table, link1 turns just above it -->
+    <disable_collisions link1="${prefix}${arm_id}_cable_guard" link2="${prefix}${arm_id}_link0" reason="Adjacent"/>
+    <disable_collisions link1="${prefix}${arm_id}_cable_guard" link2="${prefix}${arm_id}_link1" reason="Never"/>
+    <disable_collisions link1="${prefix}${arm_id}_cable_guard" link2="table_link" reason="Adjacent"/>
     <disable_collisions link1="${prefix}${arm_id}_link0" link2="${prefix}${arm_id}_link2" reason="Never"/>
     <disable_collisions link1="${prefix}${arm_id}_link0" link2="${prefix}${arm_id}_link3" reason="Never"/>
     <disable_collisions link1="${prefix}${arm_id}_link0" link2="${prefix}${arm_id}_link4" reason="Never"/>
@@ -121,16 +168,13 @@
     <disable_collisions link1="${prefix}${arm_id}_link1" link2="table_link" reason="Never"/>
     <disable_collisions link1="${prefix}${arm_id}_link2" link2="${prefix}${arm_id}_link3" reason="Adjacent"/>
     <disable_collisions link1="${prefix}${arm_id}_link2" link2="${prefix}${arm_id}_link4" reason="Never"/>
-    <disable_collisions link1="${prefix}${arm_id}_link2" link2="table_link" reason="Never"/>
     <disable_collisions link1="${prefix}${arm_id}_link3" link2="${prefix}${arm_id}_link4" reason="Adjacent"/>
     <disable_collisions link1="${prefix}${arm_id}_link3" link2="${prefix}${arm_id}_link5" reason="Never"/>
     <disable_collisions link1="${prefix}${arm_id}_link3" link2="${prefix}${arm_id}_link6" reason="Never"/>
     <disable_collisions link1="${prefix}${arm_id}_link3" link2="${prefix}${arm_id}_link7" reason="Never"/>
-    <disable_collisions link1="${prefix}${arm_id}_link3" link2="table_link" reason="Never"/>
     <disable_collisions link1="${prefix}${arm_id}_link4" link2="${prefix}${arm_id}_link5" reason="Adjacent"/>
     <disable_collisions link1="${prefix}${arm_id}_link4" link2="${prefix}${arm_id}_link6" reason="Never"/>
     <disable_collisions link1="${prefix}${arm_id}_link4" link2="${prefix}${arm_id}_link7" reason="Never"/>
-    <disable_collisions link1="${prefix}${arm_id}_link4" link2="table_link" reason="Never"/>
     <disable_collisions link1="${prefix}${arm_id}_link5" link2="${prefix}${arm_id}_link6" reason="Adjacent"/>
     <disable_collisions link1="${prefix}${arm_id}_link6" link2="${prefix}${arm_id}_link7" reason="Adjacent"/>
 

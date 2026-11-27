@@ -1,9 +1,12 @@
 <?xml version='1.0' encoding='utf-8'?>
-<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="fr3">
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="prl_franka">
 
   <xacro:include filename="$(find franka_description)/robots/common/franka_robot.xacro"/>
+  <xacro:include filename="$(find prl_franka_description)/urdf/cameras/_fixed_cameras.urdf.xacro"/>
 
-  <xacro:property name="setup" value="${xacro.load_yaml('$(find prl_franka_run)/config/robot_config.yaml')}"/>
+
+  <xacro:arg name="robot_config_file" default="$(find prl_franka_configuration)/config/robot_config.yaml"/>
+  <xacro:property name="setup" value="${xacro.load_yaml('$(arg robot_config_file)')}"/>
   <xacro:property name="arm_id" value="${setup['ROBOT']['arm_id']}"/>
   <xacro:property name="robot_ip" value="${setup['ROBOT']['robot_ip']}"/>
   <xacro:property name="prefix" value="${setup['ROBOT']['arm_prefix']}"/>
@@ -11,10 +14,19 @@
   <xacro:property name="ee_id" value="${setup['ROBOT']['ee_id']}"/>
   <xacro:property name="hand" value="${setup['ROBOT']['load_end_effector']}"/>
   <xacro:property name="with_sc" value="${setup['ROBOT']['self_collision_safety']}"/>
+  <xacro:property name="arm_pose" value="${setup['ROBOT']['arm_pose']}"/>
+  <xacro:property name="xyz_arm" value="${' '.join(map(str, arm_pose['xyz']))}"/>
+  <xacro:property name="rpy_arm" value="${' '.join(map(str, arm_pose['rpy']))}"/>
   <xacro:property name="ee_pose" value="${setup['ROBOT']['end_effector_pose']}"/>
-  <xacro:property name="xyz_ee" value="${' '.join(map(str, ee_pose['xyz']))}"/>
-  <xacro:property name="rpy_ee" value="${' '.join(map(str, ee_pose['rpy']))}"/>
+  <!-- franka_hand on the flange: Franka's standard mount (franka_description robots/<type>/<type>.urdf.xacro
+       defaults), end_effector_pose is ignored. With the ft sensor or another end effector: end_effector_pose. -->
+  <xacro:property name="hand_on_flange" value="${ee_id == 'franka_hand' and str(setup['ROBOT']['use_ft_sensor']).lower() != 'true'}"/>
+  <xacro:property name="xyz_ee" value="${'0 0 0' if hand_on_flange else ' '.join(map(str, ee_pose['xyz']))}"/>
+  <xacro:property name="rpy_ee" value="${'0 0 ' + str(-pi / 4) if hand_on_flange else ' '.join(map(str, ee_pose['rpy']))}"/>
   <xacro:property name="ft_sensor" value="${setup['ROBOT']['use_ft_sensor']}"/>
+  <xacro:property name="load_ee" value="${str(load_end_effector).lower() == 'true'}"/>
+  <xacro:property name="with_sc_bool" value="${str(with_sc).lower() == 'true'}"/>
+  <xacro:property name="cameras_setup_file" value="${setup['fixed_cameras_file']}"/>
 
 
   <!-- Multi-arm setup? -->
@@ -47,6 +59,14 @@
   <!-- Should the robot be spawned in Gazebo with effort interfaces?" -->
   <xacro:arg name="gazebo_effort" default="false" />
 
+  <!-- MuJoCo simulation (mujoco_ros2_control): MJCF scene generated from this URDF at launch -->
+  <xacro:arg name="mujoco" default="false" />
+  <xacro:arg name="mujoco_model" default="" />
+  <xacro:arg name="mujoco_headless" default="false" />
+  <!-- Start configuration in simulation: q1..q7 [finger] -->
+  <xacro:arg name="initial_joint_position" default="0.0 -0.785 0.0 -2.356 0.0 1.571 0.785 0.0" />
+  <xacro:property name="simulation" value="${'$(arg gazebo)' == 'true' or '$(arg mujoco)' == 'true'}"/>
+
   <!-- Name of the description package -->
   <xacro:arg name="description_pkg" default="franka_description" />
 
@@ -55,39 +75,33 @@
 
   <xacro:arg name="use_ft_sensor" default="false"/>
 
-  <!-- Copy in arg because franka robot uses this arg in sub macro-->
-  <xacro:arg name="hand" default="${hand}"/>
-  <xacro:arg name="ee_id" default="${ee_id}"/>
-  <xacro:arg name="with_sc" default="${with_sc}"/>
-  <xacro:arg name="xyz_ee" default="${xyz_ee}"/>
-  <xacro:arg name="rpy_ee" default="${rpy_ee}"/>
 
   <!-- Include table-->
   <link name="base_link" />
   <joint name="base_to_table" type="fixed">
     <parent link="base_link"/>
     <child link="table_link"/>
-    <origin xyz="0 0 0.68" rpy="0 0 0"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
   </joint>
 
-  <material name="Beige">
-    <color rgba="${194/255} ${160/255} ${131/255} 1.0"/>
+  <material name="blue">
+    <color rgba="${20/255} ${100/255} ${230/255} 1.0"/>
   </material>
 
   <xacro:arg name="table_scale" default="1 1 1"/>
 
   <link name="table_link">
       <visual>
-          <origin xyz="0 0 -0.05" rpy="0 0 0"/>
+          <origin xyz="0 0 0" rpy="0 0 ${pi/2}"/>
           <geometry>
               <mesh filename="package://prl_franka_description/meshes/table.stl" scale="0.001 0.001 0.001"/>
           </geometry>
-          <material name="Beige"/>
+          <material name="blue"/>
       </visual>
       <collision>
-          <origin xyz="0 0 -0.365" rpy="0 0 0"/>
+          <origin xyz="0 0 0.3674" rpy="0 0 ${pi/2}"/>
           <geometry>
-              <box size="1.0 1.0 0.73"/>
+              <box size="1.384 1.114 0.7348"/>
           </geometry>
       </collision>
       <inertial>
@@ -97,13 +111,17 @@
       </inertial>
   </link>
 
-  <xacro:if value="$(arg gazebo)">
-    <link name="${arm_id}_attachment_link"/>
-  </xacro:if>
-  <joint name="${arm_id}_attachment_joint" type="fixed">
+  <link name="table_center"/>
+  <joint name="table_center_joint" type="fixed">
     <parent link="table_link"/>
+    <child link="table_center"/>
+    <origin xyz="0 0 0.7348" rpy="0 0 0"/>
+  </joint>
+
+  <joint name="${arm_id}_attachment_joint" type="fixed">
+    <parent link="table_center"/>
     <child link="${arm_id}_attachment_link"/>
-    <origin xyz="-0.6 0 0.045" rpy="0 0 0"/>
+    <origin xyz="${xyz_arm}" rpy="${rpy_arm}"/>
   </joint>
 
   <!-- Force torque sensor -->
@@ -131,37 +149,35 @@
       </xacro:if>
     </xacro:if>
     <xacro:property name="ee_mount_parent" value="${modified_prefix}robotiq_ft_frame_id"/>
+    <xacro:property name="special_connection" value="robotiq_ft_frame_id"/>
   </xacro:if>
   <xacro:unless value="${ft_sensor}">
     <xacro:property name="ee_mount_parent" value="${modified_prefix}${arm_id}_link8"/>
+    <xacro:property name="special_connection" value=""/>
   </xacro:unless>
-  <!-- Where is the end-effector connected to, if different from the robot flange?  -->
-  <xacro:arg name="special_connection" default="${ee_mount_parent}"/>
 
-  <xacro:if value="${ee_id == 'ball' and load_end_effector}">
+  <!-- Arm geometry (franka_description >= 2.x: geometry only, no ros2_control/gazebo) -->
+  <xacro:franka_robot
+      robot_type="${arm_id}"
+      hand="${load_ee and ee_id != 'ball'}"
+      ee_id="${ee_id if ee_id != 'ball' else 'none'}"
+      special_connection="${special_connection}"
+      xyz_ee="${xyz_ee}"
+      rpy_ee="${rpy_ee}"
+      tcp_xyz="$(arg tcp_xyz)"
+      tcp_rpy="$(arg tcp_rpy)"
+      safety_distance="$(arg safety_distance)"
+      include_self_collision_geometry="${not simulation}"
+      with_sc="${with_sc_bool}"
+      no_prefix="$(arg no_prefix)"
+      arm_prefix="${modified_prefix}"
+      description_pkg="$(arg description_pkg)"
+      connected_to="${arm_id}_attachment_link"
+      xyz="0 0 0"
+      rpy="0 0 0"/>
+
+  <xacro:if value="${ee_id == 'ball' and load_ee}">
     <xacro:include filename="$(find prl_franka_description)/urdf/end_effectors/ball/ball.urdf.xacro"/>
-    <xacro:franka_robot
-        arm_id="${arm_id}"
-        joint_limits="${xacro.load_yaml('$(find franka_description)/robots/' + arm_id + '/joint_limits.yaml')}"
-        inertials="${xacro.load_yaml('$(find franka_description)/robots/' + arm_id + '/inertials.yaml')}"
-        kinematics="${xacro.load_yaml('$(find franka_description)/robots/' + arm_id + '/kinematics.yaml')}"
-        dynamics="${xacro.load_yaml('$(find franka_description)/robots/' + arm_id + '/dynamics.yaml')}"
-        gazebo="$(arg gazebo)"
-        hand="false"
-        ee_id="none"
-        with_sc="${with_sc}"
-        ros2_control="$(arg ros2_control)"
-        robot_ip="${robot_ip}"
-        use_fake_hardware="$(arg use_fake_hardware)"
-        fake_sensor_commands="$(arg fake_sensor_commands)"
-        gazebo_effort="$(arg gazebo_effort)"
-        no_prefix="$(arg no_prefix)"
-        arm_prefix="${modified_prefix}"
-        parent="${arm_id}_attachment_link"
-        connected_to="${arm_id}_attachment_link"
-        xyz="0 0 0"
-        rpy="0 0 0"/>
-
     <xacro:ball_effector
         parent="${ee_mount_parent}"
         prefix="${modified_prefix}${arm_id}"
@@ -171,27 +187,109 @@
         tcp_rpy="$(arg tcp_rpy)"/>
   </xacro:if>
 
-  <xacro:unless value="${ee_id == 'ball'}">
-    <xacro:franka_robot
-        arm_id="${arm_id}"
-        joint_limits="${xacro.load_yaml('$(find franka_description)/robots/' + arm_id + '/joint_limits.yaml')}"
-        inertials="${xacro.load_yaml('$(find franka_description)/robots/' + arm_id + '/inertials.yaml')}"
-        kinematics="${xacro.load_yaml('$(find franka_description)/robots/' + arm_id + '/kinematics.yaml')}"
-        dynamics="${xacro.load_yaml('$(find franka_description)/robots/' + arm_id + '/dynamics.yaml')}"
-        gazebo="$(arg gazebo)"
-        hand="${hand}"
-        ee_id="${ee_id}"
-        with_sc="${with_sc}"
-        ros2_control="$(arg ros2_control)"
-        robot_ip="${robot_ip}"
-        use_fake_hardware="$(arg use_fake_hardware)"
-        fake_sensor_commands="$(arg fake_sensor_commands)"
-        gazebo_effort="$(arg gazebo_effort)"
-        no_prefix="$(arg no_prefix)"
+  <!-- Cable guard: collision box around the arm base and the (unmodelled) cables leaving it at the back (-x),
+       so MoveIt keeps the arm away from them. In the link0 frame: x -0.30..0.09, y -0.12..0.12,
+       z 0..0.14 (top at link0 height so it does not overlap link1). -->
+  <xacro:property name="cable_guard_xyz" value="0 0 0"/>
+  <xacro:property name="cable_guard_size" value="0.24 0.35 0.14"/>
+  <link name="${modified_prefix}${arm_id}_cable_guard">
+    <visual>
+      <origin xyz="${cable_guard_xyz}" rpy="0 0 0"/>
+      <geometry><box size="${cable_guard_size}"/></geometry>
+      <material name="cable_guard"><color rgba="1.0 0.5 0.0 0.25"/></material>
+    </visual>
+    <collision>
+      <origin xyz="${cable_guard_xyz}" rpy="0 0 0"/>
+      <geometry><box size="${cable_guard_size}"/></geometry>
+    </collision>
+  </link>
+  <joint name="${modified_prefix}${arm_id}_cable_guard_joint" type="fixed">
+    <parent link="${modified_prefix}${arm_id}_link0"/>
+    <child link="${modified_prefix}${arm_id}_cable_guard"/>
+    <origin xyz="-0.05  0 0" rpy="0 0 0"/>
+  </joint>
+
+  <xacro:property name="wall_distance" value="1.05"/>
+  <xacro:property name="wall_thickness" value="0.02"/>
+  <xacro:property name="wall_width" value="2.0"/>
+  <xacro:property name="wall_height" value="2.0"/>
+  <link name="back_wall">
+    <visual>
+      <origin xyz="0 0 ${wall_height / 2}" rpy="0 0 0"/>
+      <geometry><box size="${wall_thickness} ${wall_width} ${wall_height}"/></geometry>
+      <material name="back_wall"><color rgba="0.7 0.7 0.7 0.3"/></material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 ${wall_height / 2 }" rpy="0 0 0"/>
+      <geometry><box size="${wall_thickness} ${wall_width} ${wall_height}"/></geometry>
+    </collision>
+  </link>
+  <joint name="back_wall_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="back_wall"/>
+    <origin xyz="-${wall_distance} 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <!-- ros2_control: real / mock hardware (franka_hardware) -->
+  <xacro:if value="${'$(arg ros2_control)' == 'true' and not simulation}">
+    <xacro:include filename="$(find franka_hardware)/ros2_control/franka_arm.ros2_control.xacro"/>
+    <xacro:include filename="$(find franka_hardware)/ros2_control/franka_arm_hardware_plugins.xacro"/>
+    <xacro:franka_arm_ros2_control
+        robot_type="${arm_id}"
+        include_effort_command="true"
+        include_finger_joint="false"
+        arm_prefix="${modified_prefix}">
+      <hardware_plugin>
+        <xacro:if value="$(arg use_fake_hardware)">
+          <xacro:franka_mock_hardware_plugin fake_sensor_commands="$(arg fake_sensor_commands)"/>
+        </xacro:if>
+        <xacro:unless value="$(arg use_fake_hardware)">
+          <xacro:franka_real_hardware_plugin robot_ip="${robot_ip}" arm_prefix="${modified_prefix}"/>
+        </xacro:unless>
+      </hardware_plugin>
+    </xacro:franka_arm_ros2_control>
+  </xacro:if>
+
+  <!-- ros2_control: Gazebo (franka_gazebo_bringup) -->
+  <xacro:if value="$(arg gazebo)">
+    <xacro:include filename="$(find franka_hardware)/ros2_control/franka_arm.ros2_control.xacro"/>
+    <xacro:include filename="$(find franka_gazebo_bringup)/urdf/franka_gazebo_hardware_plugins.xacro"/>
+    <xacro:include filename="$(find franka_gazebo_bringup)/urdf/franka_gazebo_transmissions.xacro"/>
+    <xacro:franka_gazebo_transmissions
+        robot_type="${arm_id}"
         arm_prefix="${modified_prefix}"
-        parent="${arm_id}_attachment_link"
-        connected_to="${arm_id}_attachment_link"
-        xyz="0 0 0"
-        rpy="0 0 0"/>
-  </xacro:unless>
+        ee_id="${ee_id}"
+        hand="${load_ee and ee_id == 'franka_hand'}"/>
+    <xacro:franka_arm_ros2_control
+        robot_type="${arm_id}"
+        include_effort_command="$(arg gazebo_effort)"
+        include_finger_joint="${load_ee and ee_id == 'franka_hand'}"
+        arm_prefix="${modified_prefix}">
+      <hardware_plugin>
+        <xacro:franka_gazebo_hardware_plugin gazebo_effort="$(arg gazebo_effort)"/>
+      </hardware_plugin>
+    </xacro:franka_arm_ros2_control>
+    <xacro:franka_gazebo_ros2_control_system/>
+  </xacro:if>
+
+
+  <!-- ros2_control + extra physics: MuJoCo (mujoco_ros2_control) -->
+  <xacro:if value="$(arg mujoco)">
+    <xacro:include filename="$(find prl_franka_mujoco)/urdf/prl_franka_mujoco.xacro"/>
+    <xacro:prl_franka_mujoco arm_id="${arm_id}" prefix="${modified_prefix}"
+        hand="${load_ee and ee_id == 'franka_hand'}"
+        mujoco_model="$(arg mujoco_model)" headless="$(arg mujoco_headless)"
+        initial_positions="$(arg initial_joint_position)"/>
+  </xacro:if>
+
+  <!-- Cameras fixed around the table-->
+
+  <!-- Turn on the simulated camera streams (Gazebo) -->
+  <xacro:arg name="activate_cameras" default="false"/>
+  <!-- same `activate` flags as the real drivers (prl_franka_control/sensors.launch.py) -->
+  <xacro:property name="cameras_config" value="${xacro.load_yaml('$(find prl_franka_configuration)/config/fixed_cameras/cameras_config.yaml')['cameras']}"/>
+  <xacro:property name="active_cameras" value="${[n for n, c in cameras_config.items() if c.get('activate', False)] if '$(arg activate_cameras)' == 'true' else []}"/>
+  <xacro:if value="${cameras_setup_file is not None}">
+    <xacro:fixed_cameras parent="table_center" fixed_cameras_file="$(find prl_franka_configuration)/config/${cameras_setup_file}" active_cameras="${active_cameras}"/>
+  </xacro:if>
 </robot>

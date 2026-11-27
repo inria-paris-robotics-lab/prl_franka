@@ -1,28 +1,11 @@
 import os
 
-from ament_index_python.packages import get_package_share_directory
-
 from launch import LaunchDescription
-from launch.actions import (
-    DeclareLaunchArgument,
-    IncludeLaunchDescription,
-    OpaqueFunction,
-)
-from launch.actions import RegisterEventHandler, LogInfo
+from launch.actions import DeclareLaunchArgument, OpaqueFunction, RegisterEventHandler
 from launch.event_handlers import OnProcessExit
-from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import (
-    Command,
-    FindExecutable,
-    LaunchConfiguration,
-    PathJoinSubstitution,
-)
-
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
-
-from launch_ros.parameter_descriptions import ParameterValue
-from pathlib import Path
 from moveit_configs_utils import MoveItConfigsBuilder
 
 
@@ -32,11 +15,32 @@ def launch_setup(context):
     ############################ MoveIt Part ################################
 
     # Config file
-    moveit_config = (
-        MoveItConfigsBuilder(robot_name="franka", package_name="prl_franka_moveit")
-        .robot_description_semantic(Path("config") / "fr3.srdf")
-        .to_moveit_configs()
-    )
+    moveit_config = MoveItConfigsBuilder(
+        robot_name="prl_franka", package_name="prl_franka_moveit"
+    ).to_moveit_configs()
+    # Hand: in simulation gripper_action_controller (ros2_control, moveit_controllers.yaml); on the real robot
+    # the franka_gripper node (/franka_gripper/gripper_action, GripperCommand with position = width / 2)
+    real_robot = context.perform_substitution(use_sim_time).lower() != "true"
+    gripper_controller = {}
+    if real_robot:
+        arm_controllers = [
+            c
+            for c in moveit_config.trajectory_execution[
+                "moveit_simple_controller_manager"
+            ]["controller_names"]
+            if c != "gripper_action_controller"
+        ]
+        gripper_controller = {
+            "moveit_simple_controller_manager.controller_names": arm_controllers
+            + ["franka_gripper"],
+            "moveit_simple_controller_manager.franka_gripper.type": "GripperCommand",
+            "moveit_simple_controller_manager.franka_gripper.action_ns": "gripper_action",
+            "moveit_simple_controller_manager.franka_gripper.joints": [
+                "fr3v2_finger_joint1"
+            ],
+            "moveit_simple_controller_manager.franka_gripper.default": True,
+        }
+
     warehouse_ros_config = {
         "warehouse_plugin": "warehouse_ros_sqlite::DatabaseConnection",
         "warehouse_host": os.path.expanduser("~/.ros/warehouse_ros.sqlite"),
@@ -53,9 +57,15 @@ def launch_setup(context):
         parameters=[
             moveit_config.to_dict(),
             warehouse_ros_config,
+            gripper_controller,
             {
                 "use_sim_time": use_sim_time,
                 "publish_robot_description_semantic": "true",
+                # clamp start states a hair outside the limits (sim/encoder noise) instead of rejecting them
+                **{
+                    f"{p}.fix_start_state": True
+                    for p in moveit_config.planning_pipelines["planning_pipelines"]
+                },
             },
         ],
     )

@@ -3,23 +3,4 @@ moveit_setup_assistant_config:
     package: prl_franka_description
     relative_path: urdf/prl_franka.urdf.xacro
   srdf:
-    relative_path: config/fr3.srdf
-  package_settings:
-    author_name: Timothee Carecchio
-    author_email: timothee.carecchio@inria.fr
-    generated_timestamp: 1766049175
-  control_xacro:
-    command:
-      - position
-    state:
-      - position
-      - velocity
-  modified_urdf:
-    xacros:
-      - control_xacro
-  control_xacro:
-    command:
-      - position
-    state:
-      - position
-      - velocity
+    relative_path: config/prl_franka.srdf

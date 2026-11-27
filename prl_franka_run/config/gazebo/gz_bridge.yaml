@@ -1,4 +1,6 @@
+# Gazebo -> ROS bridge (prl_franka_run/launch/sim.launch.py).
+# Clock is still needed in jazzy: ros_gz_sim does not bridge it.
 - topic_name: /clock
   ros_type_name: rosgraph_msgs/msg/Clock
-  gz_type_name: ignition.msgs.Clock
+  gz_type_name: gz.msgs.Clock
   direction: GZ_TO_ROS
