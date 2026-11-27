@@ -40,8 +40,10 @@ def launch_setup(context):
     ).perform(context)
     active_controller = LaunchConfiguration("active_controller").perform(context)
     loaded_controllers = LaunchConfiguration("loaded_controllers").perform(context)
-    controller_params = LaunchConfiguration("controller_file").perform(context)
-    simulation = LaunchConfiguration("simulation").perform(context)
+    controller_params = [LaunchConfiguration("controller_file").perform(context)]
+    override = LaunchConfiguration("controller_override_file").perform(context)
+    if override:  # later --param-file wins: e.g. simulator-specific gains
+        controller_params.append(override)
     # Convert string to list
     controllers_to_activate = [c for c in active_controller.split(",") if c]
     controllers_to_load = [c for c in loaded_controllers.split(",") if c]
@@ -108,9 +110,9 @@ def generate_launch_description():
             description="Path to the controller configuration file.",
         ),
         DeclareLaunchArgument(
-            "simulation",
-            default_value="false",
-            description="Whether to run in simulation mode or on real robot.",
+            "controller_override_file",
+            default_value="",
+            description="Optional parameter file loaded on top of controller_file (e.g. simulator-specific gains).",
         ),
     ]
     return LaunchDescription(

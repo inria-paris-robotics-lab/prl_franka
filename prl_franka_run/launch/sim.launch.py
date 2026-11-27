@@ -140,7 +140,13 @@ def launch_setup(
             "active_controller": str(active_controllers),
             "loaded_controllers": str(inactive_controller),
             "controller_file": str(controller_param_file),
-            "simulation": "true",
+            "controller_override_file": PathJoinSubstitution(
+                [
+                    FindPackageShare("prl_franka_control"),
+                    "config/arm",
+                    "arm_controllers_gazebo.yaml",
+                ]
+            ),
         }.items(),
     )
 

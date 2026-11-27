@@ -1,0 +1,7 @@
+# Gazebo-only overrides of arm_controllers.yaml (controller_override_file of franka_controllers.launch.py, set by sim.launch.py).
+# Gazebo has no reflected motor inertia (~0.2 kg.m2 on the real wrist), so link7 is very light:
+# d=5 at 1 kHz is at the edge of discrete stability (d*dt/I ~ 1.7 < 2) and the wrist chatters.
+fr3_arm_controller:
+  ros__parameters:
+    gains:
+      fr3v2_joint7: { d: 1. }

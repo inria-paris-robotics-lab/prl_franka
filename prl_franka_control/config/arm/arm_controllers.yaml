@@ -42,4 +42,4 @@ torque_passthrough_controller:
 gravity_compensation_example_controller:
   ros__parameters:
     type: franka_example_controllers/GravityCompensationExampleController
-    arm_id: "fr3v2"
+    robot_type: "fr3v2"  # franka_example_controllers >= v3 read robot_type

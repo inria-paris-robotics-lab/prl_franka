@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <robot xmlns:xacro="http://wiki.ros.org/xacro">
-<xacro:arg name="arm_id" default="fr3" />
+<xacro:arg name="arm_id" default="fr3v2" />
     <xacro:macro name="ball_tool_group_define" params="group_name prefix arm_id">
         <group name="${group_name}">
             <link name="${prefix}${arm_id}_ball_link"/>

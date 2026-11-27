@@ -18,6 +18,29 @@ def launch_setup(context):
     moveit_config = MoveItConfigsBuilder(
         robot_name="prl_franka", package_name="prl_franka_moveit"
     ).to_moveit_configs()
+    # Hand: in simulation gripper_action_controller (ros2_control, moveit_controllers.yaml); on the real robot
+    # the franka_gripper node (/franka_gripper/gripper_action, GripperCommand with position = width / 2)
+    real_robot = context.perform_substitution(use_sim_time).lower() != "true"
+    gripper_controller = {}
+    if real_robot:
+        arm_controllers = [
+            c
+            for c in moveit_config.trajectory_execution[
+                "moveit_simple_controller_manager"
+            ]["controller_names"]
+            if c != "gripper_action_controller"
+        ]
+        gripper_controller = {
+            "moveit_simple_controller_manager.controller_names": arm_controllers
+            + ["franka_gripper"],
+            "moveit_simple_controller_manager.franka_gripper.type": "GripperCommand",
+            "moveit_simple_controller_manager.franka_gripper.action_ns": "gripper_action",
+            "moveit_simple_controller_manager.franka_gripper.joints": [
+                "fr3v2_finger_joint1"
+            ],
+            "moveit_simple_controller_manager.franka_gripper.default": True,
+        }
+
     warehouse_ros_config = {
         "warehouse_plugin": "warehouse_ros_sqlite::DatabaseConnection",
         "warehouse_host": os.path.expanduser("~/.ros/warehouse_ros.sqlite"),
@@ -34,6 +57,7 @@ def launch_setup(context):
         parameters=[
             moveit_config.to_dict(),
             warehouse_ros_config,
+            gripper_controller,
             {
                 "use_sim_time": use_sim_time,
                 "publish_robot_description_semantic": "true",

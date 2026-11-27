@@ -14,6 +14,7 @@
 #include "prl_franka_msgs/msg/trajectory_torque.hpp"
 
 #include "franka_semantic_components/franka_robot_model.hpp"
+#include <pinocchio/multibody.hpp>
 #include <trajectory_msgs/msg/joint_trajectory.hpp>
 #include <trajectory_msgs/msg/joint_trajectory_point.hpp>
 
@@ -43,6 +44,7 @@ public:
 
   Eigen::VectorXd computeExternalTorque();
   Eigen::VectorXd computeTauBias();
+  Eigen::VectorXd gravityTorque();
 
 private:
   std::string arm_id_;
@@ -69,9 +71,17 @@ private:
   rclcpp::Publisher<trajectory_msgs::msg::JointTrajectoryPoint>::SharedPtr
       pos_and_vel_pub_;
 
-  // Robot model
+  // Gravity source: "franka" (robot_model interface, real robot / Franka Gazebo
+  // plugin), "urdf" (Pinocchio on robot_description, when effort includes
+  // gravity but no Franka interfaces), "none" (effort already excludes gravity,
+  // e.g. MuJoCo with gravcomp)
+  std::string gravity_source_ = "franka";
   std::unique_ptr<franka_semantic_components::FrankaRobotModel>
       franka_robot_model_;
+  pinocchio::Model pin_model_;
+  std::unique_ptr<pinocchio::Data> pin_data_;
+  Eigen::VectorXd pin_q_;
+  std::vector<int> pin_q_idx_, pin_v_idx_;
 
   // Interface names for robot state and model
   const std::string k_robot_state_interface_name{"robot_state"};

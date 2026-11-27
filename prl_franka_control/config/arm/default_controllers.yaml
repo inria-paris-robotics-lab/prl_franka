@@ -88,26 +88,31 @@
   cartesian_elbow_example_controller:
     ros__parameters:
       arm_id: "fr3v2"
+      robot_type: "fr3v2"  # franka_ros2 >= v3 name
 
 /**:
   cartesian_orientation_example_controller:
     ros__parameters:
       arm_id: "fr3v2"
+      robot_type: "fr3v2"  # franka_ros2 >= v3 name
 
 /**:
   cartesian_pose_example_controller:
     ros__parameters:
       arm_id: "fr3v2"
+      robot_type: "fr3v2"  # franka_ros2 >= v3 name
 
 /**:
   cartesian_velocity_example_controller:
     ros__parameters:
       arm_id: "fr3v2"
+      robot_type: "fr3v2"  # franka_ros2 >= v3 name
 
 /**:
   elbow_example_controller:
     ros__parameters:
       arm_id: "fr3v2"
+      robot_type: "fr3v2"  # franka_ros2 >= v3 name
       joints:
         - fr3v2_joint1
         - fr3v2_joint2
@@ -129,11 +134,13 @@
   gravity_compensation_example_controller:
     ros__parameters:
       arm_id: "fr3v2"
+      robot_type: "fr3v2"  # franka_ros2 >= v3 name
 
 /**:
   joint_impedance_example_controller:
     ros__parameters:
       arm_id: "fr3v2"
+      robot_type: "fr3v2"  # franka_ros2 >= v3 name
       k_gains:
         - 24.0
         - 24.0
@@ -155,6 +162,7 @@
   joint_impedance_with_ik_example_controller:
     ros__parameters:
       arm_id: "fr3v2"
+      robot_type: "fr3v2"  # franka_ros2 >= v3 name
       k_gains:
         - 600.0
         - 600.0
@@ -176,16 +184,19 @@
   joint_position_example_controller:
     ros__parameters:
       arm_id: "fr3v2"
+      robot_type: "fr3v2"  # franka_ros2 >= v3 name
 
 /**:
   joint_velocity_example_controller:
     ros__parameters:
       arm_id: "fr3v2"
+      robot_type: "fr3v2"  # franka_ros2 >= v3 name
 
 /**:
   joint_state_broadcaster:
     ros__parameters:
       arm_id: "fr3v2"
+      robot_type: "fr3v2"  # franka_ros2 >= v3 name
       joints:
         - fr3v2_joint1
         - fr3v2_joint2
@@ -199,11 +210,13 @@
   joint_velocity_example_controller:
     ros__parameters:
       arm_id: "fr3v2"
+      robot_type: "fr3v2"  # franka_ros2 >= v3 name
 
 /**:
   model_example_controller:
     ros__parameters:
       arm_id: "fr3v2"
+      robot_type: "fr3v2"  # franka_ros2 >= v3 name
 
 /**:
   move_to_start_example_controller:

@@ -121,6 +121,9 @@ def launch_setup(
         ),
         launch_arguments={
             "robot_ip": robot_ip,
+            # franka_gripper >= v3: both are required (joint names <robot_type>_finger_jointN)
+            "robot_type": LaunchConfiguration("arm_id"),
+            "namespace": "",
         }.items(),
         condition=IfCondition(franka_hand_condition),
     )
@@ -161,7 +164,7 @@ def generate_launch_description():
         ),
         DeclareLaunchArgument(
             "arm_id",
-            default_value="fer",
+            default_value="fr3v2",
             description="ID of the type of arm used. Supported values: fer, fr3, fr3v2, fp3.",
             choices=["fer", "fr3", "fr3v2", "fp3"],
         ),
