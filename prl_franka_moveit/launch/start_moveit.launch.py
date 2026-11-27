@@ -1,28 +1,11 @@
 import os
 
-from ament_index_python.packages import get_package_share_directory
-
 from launch import LaunchDescription
-from launch.actions import (
-    DeclareLaunchArgument,
-    IncludeLaunchDescription,
-    OpaqueFunction,
-)
-from launch.actions import RegisterEventHandler, LogInfo
+from launch.actions import DeclareLaunchArgument, OpaqueFunction, RegisterEventHandler
 from launch.event_handlers import OnProcessExit
-from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import (
-    Command,
-    FindExecutable,
-    LaunchConfiguration,
-    PathJoinSubstitution,
-)
-
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
-
-from launch_ros.parameter_descriptions import ParameterValue
-from pathlib import Path
 from moveit_configs_utils import MoveItConfigsBuilder
 
 
@@ -32,11 +15,9 @@ def launch_setup(context):
     ############################ MoveIt Part ################################
 
     # Config file
-    moveit_config = (
-        MoveItConfigsBuilder(robot_name="franka", package_name="prl_franka_moveit")
-        .robot_description_semantic(Path("config") / "fr3.srdf")
-        .to_moveit_configs()
-    )
+    moveit_config = MoveItConfigsBuilder(
+        robot_name="prl_franka", package_name="prl_franka_moveit"
+    ).to_moveit_configs()
     warehouse_ros_config = {
         "warehouse_plugin": "warehouse_ros_sqlite::DatabaseConnection",
         "warehouse_host": os.path.expanduser("~/.ros/warehouse_ros.sqlite"),
@@ -56,6 +37,11 @@ def launch_setup(context):
             {
                 "use_sim_time": use_sim_time,
                 "publish_robot_description_semantic": "true",
+                # clamp start states a hair outside the limits (sim/encoder noise) instead of rejecting them
+                **{
+                    f"{p}.fix_start_state": True
+                    for p in moveit_config.planning_pipelines["planning_pipelines"]
+                },
             },
         ],
     )

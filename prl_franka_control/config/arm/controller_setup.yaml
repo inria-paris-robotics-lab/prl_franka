@@ -1,7 +1,0 @@
-controllers:
-  active_controllers:
-    - torque_passthrough_controller
-  inactive_controllers:
-    - fr3_arm_controller
-    - gravity_compensation_example_controller
-  unused_controllers:

@@ -23,9 +23,8 @@ def controller_spawner(controllers, controller_params, active=True):
                     "/controller_manager",
                     "--controller-manager-timeout",
                     "10",
-                    "--param-file",
-                    controller_params,
                 ]
+                + [a for f in controller_params for a in ("--param-file", f)]
                 + inactive_flags
                 + [controller],
             )
@@ -57,9 +56,8 @@ def launch_setup(context):
             "--controller-manager-timeout",
             "10",
             "joint_state_broadcaster",
-            "--param-file",
-            controller_params,
-        ],
+        ]
+        + [a for f in controller_params for a in ("--param-file", f)],
     )
     controllers_active = []
     # Default inactive controllers

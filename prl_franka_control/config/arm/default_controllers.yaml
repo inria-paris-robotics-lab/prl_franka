@@ -87,35 +87,35 @@
 /**:
   cartesian_elbow_example_controller:
     ros__parameters:
-      arm_id: "fr3"
+      arm_id: "fr3v2"
 
 /**:
   cartesian_orientation_example_controller:
     ros__parameters:
-      arm_id: "fr3"
+      arm_id: "fr3v2"
 
 /**:
   cartesian_pose_example_controller:
     ros__parameters:
-      arm_id: "fr3"
+      arm_id: "fr3v2"
 
 /**:
   cartesian_velocity_example_controller:
     ros__parameters:
-      arm_id: "fr3"
+      arm_id: "fr3v2"
 
 /**:
   elbow_example_controller:
     ros__parameters:
-      arm_id: "fr3"
+      arm_id: "fr3v2"
       joints:
-        - fr3_joint1
-        - fr3_joint2
-        - fr3_joint3
-        - fr3_joint4
-        - fr3_joint5
-        - fr3_joint6
-        - fr3_joint7
+        - fr3v2_joint1
+        - fr3v2_joint2
+        - fr3v2_joint3
+        - fr3v2_joint4
+        - fr3v2_joint5
+        - fr3v2_joint6
+        - fr3v2_joint7
 
 /**:
   franka_robot_state_broadcaster:
@@ -128,12 +128,12 @@
 /**:
   gravity_compensation_example_controller:
     ros__parameters:
-      arm_id: "fr3"
+      arm_id: "fr3v2"
 
 /**:
   joint_impedance_example_controller:
     ros__parameters:
-      arm_id: "fr3"
+      arm_id: "fr3v2"
       k_gains:
         - 24.0
         - 24.0
@@ -154,7 +154,7 @@
 /**:
   joint_impedance_with_ik_example_controller:
     ros__parameters:
-      arm_id: "fr3"
+      arm_id: "fr3v2"
       k_gains:
         - 600.0
         - 600.0
@@ -175,35 +175,35 @@
 /**:
   joint_position_example_controller:
     ros__parameters:
-      arm_id: "fr3"
+      arm_id: "fr3v2"
 
 /**:
   joint_velocity_example_controller:
     ros__parameters:
-      arm_id: "fr3"
+      arm_id: "fr3v2"
 
 /**:
   joint_state_broadcaster:
     ros__parameters:
-      arm_id: "fr3"
+      arm_id: "fr3v2"
       joints:
-        - fr3_joint1
-        - fr3_joint2
-        - fr3_joint3
-        - fr3_joint4
-        - fr3_joint5
-        - fr3_joint6
-        - fr3_joint7
+        - fr3v2_joint1
+        - fr3v2_joint2
+        - fr3v2_joint3
+        - fr3v2_joint4
+        - fr3v2_joint5
+        - fr3v2_joint6
+        - fr3v2_joint7
 
 /**:
   joint_velocity_example_controller:
     ros__parameters:
-      arm_id: "fr3"
+      arm_id: "fr3v2"
 
 /**:
   model_example_controller:
     ros__parameters:
-      arm_id: "fr3"
+      arm_id: "fr3v2"
 
 /**:
   move_to_start_example_controller:

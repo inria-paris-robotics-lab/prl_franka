@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro">
+
+  <!-- realsense d435i -->
+  <xacro:include filename="$(find realsense2_description)/urdf/_d435i.urdf.xacro"/>
+  <xacro:include filename="$(find prl_franka_description)/urdf/cameras/_d435_gazebo.urdf.xacro"/>
+  <!-- orbbec femto (femto-mega) -->
+  <xacro:include filename="$(find orbbec_description)/urdf/femto_bolt.urdf.xacro"/>
+
+  <xacro:macro name="camera_sensor" params="prefix parent camera pose turn_on:=false">
+
+    <!-- check camera type -->
+    <xacro:unless value="${camera in ['realsense-d435i', 'femto-mega', None]}">
+      <xacro:unknown_camera_type/>
+    </xacro:unless>
+
+    <!-- if realsense d435i -->
+    <xacro:if value="${camera == 'realsense-d435i'}">
+      <xacro:sensor_d435i name="${prefix}camera" parent="${parent}" use_nominal_extrinsics="true">
+        <origin xyz="${pose['x']} ${pose['y']} ${pose['z']}" rpy="${pose['roll']} ${pose['pitch']} ${pose['yaw']}"/>
+      </xacro:sensor_d435i>
+      <xacro:gazebo_d435 name="${prefix}camera" turn_on="${turn_on}"/>
+    </xacro:if>
+
+    <xacro:if value="${camera == 'femto-mega'}">
+        <xacro:femto_bolt prefix="${prefix}camera" parent="${parent}" use_nominal_extrinsics="true">
+            <origin xyz="${pose['x']} ${pose['y']} ${pose['z']}" rpy="${pose['roll']} ${pose['pitch']} ${pose['yaw']}"/>
+        </xacro:femto_bolt>
+    </xacro:if>
+
+  </xacro:macro>
+</robot>

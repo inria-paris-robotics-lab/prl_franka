@@ -56,6 +56,8 @@ ament_target_dependencies(
         prl_franka_msgs
 )
 
+target_link_libraries(${PROJECT_NAME} pinocchio::pinocchio)
+
 pluginlib_export_plugin_description_file(
         controller_interface prl_franka_controllers.xml)
 

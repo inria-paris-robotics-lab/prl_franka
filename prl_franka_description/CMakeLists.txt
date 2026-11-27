@@ -9,6 +9,8 @@ endif()
 find_package(ament_cmake REQUIRED)
 
 install(DIRECTORY launch rviz urdf srdf meshes worlds plotjuggler DESTINATION share/${PROJECT_NAME})
+# lets Gazebo resolve model://prl_franka_description/... meshes
+ament_environment_hooks("${CMAKE_CURRENT_SOURCE_DIR}/env-hooks/gz_resource_path.dsv.in")
 
 
 if(BUILD_TESTING)

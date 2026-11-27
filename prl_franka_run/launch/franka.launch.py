@@ -1,4 +1,5 @@
 import ast
+import re
 from copy import deepcopy
 
 from launch import LaunchContext, LaunchDescription
@@ -40,18 +41,18 @@ def launch_setup(
     with config_path.open("r") as setup_file:
         robot = yaml.safe_load(setup_file)
         config = robot.get("ROBOT", {})
-    arm_id = config.get("arm_id", "fr3")
-    if arm_id not in ["fer", "fr3", "fp3"]:
+    arm_id = config.get("arm_id", "fr3v2")
+    if arm_id not in ["fer", "fr3", "fp3", "fr3v2"]:
         raise RuntimeError(
             f"Unsupported arm_id '{arm_id}' in robot configuration file! "
-            "Supported values are: 'fer', 'fr3', 'fp3'."
+            "Supported values are: 'fer', 'fr3', 'fr3v2', 'fp3'."
         )
     namespaces = config.get("namespaces", "")
     ee_id = config.get("ee_id", "franka_hand")
     load_end_effector = config.get("load_end_effector", "true")
     robot_ip = config.get("robot_ip", "")
-    arm_id = config.get("arm_id", "fr3")
-    use_ft_sensor = config.get("use_ft_sensor","false")
+    arm_id = config.get("arm_id", "fr3v2")
+    use_ft_sensor = config.get("use_ft_sensor", "false")
     tare_ft_sensor = config.get("tare_ft_sensor", "false")
 
     aux_computer_ip = LaunchConfiguration("aux_computer_ip")
@@ -72,6 +73,8 @@ def launch_setup(
     franka_controllers_setup = LaunchConfiguration("franka_controllers_setup")
     initial_joint_position = LaunchConfiguration("initial_joint_position")
     use_plotjuggler = LaunchConfiguration("use_plotjuggler")
+    activate_cameras = LaunchConfiguration("activate_cameras")
+    use_moveit = LaunchConfiguration("use_moveit")
 
     robot_ip_empty = robot_ip == ""
     aux_computer_ip_empty = context.perform_substitution(aux_computer_ip) == ""
@@ -162,6 +165,7 @@ def launch_setup(
             "franka_controllers_setup": franka_controllers_setup,
             "ft_sensor": use_ft_sensor,
             "tare_ft_sensor": tare_ft_sensor,
+            "activate_cameras": activate_cameras,
         }.items(),
         condition=UnlessCondition(
             OrSubstitution(
@@ -189,8 +193,24 @@ def launch_setup(
             "use_ft_sensor": use_ft_sensor,
             "ee_id": ee_id,
             "load_end_effector": load_end_effector,
+            "franka_controllers_setup": franka_controllers_setup,
+            "activate_cameras": activate_cameras,
         }.items(),
         condition=IfCondition(use_gazebo),
+    )
+
+    moveit_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution(
+                [
+                    FindPackageShare("prl_franka_moveit"),
+                    "launch",
+                    "start_moveit.launch.py",
+                ]
+            )
+        ),
+        launch_arguments={"use_sim_time": use_sim_time}.items(),
+        condition=IfCondition(use_moveit),
     )
 
     def _to_subst_value(val):
@@ -207,6 +227,8 @@ def launch_setup(
         "with_sc": "false",
         "initial_joint_position": initial_joint_position,
         "use_ft_sensor": use_ft_sensor,
+        "robot_config_file": config_file,
+        "activate_cameras": activate_cameras,
     }
 
     robot_description_file_substitution = PathJoinSubstitution(
@@ -216,18 +238,24 @@ def launch_setup(
             "prl_franka.urdf.xacro",
         ]
     )
-    robot_description = ParameterValue(
-        Command(
-            [
-                PathJoinSubstitution([FindExecutable(name="xacro")]),
-                " ",
-                robot_description_file_substitution,
-                # Convert dict to list of parameters
-                *[arg for key, val in xacro_args.items() for arg in (f" {key}:=", val)],
-            ]
-        ),
-        value_type=str,
+    robot_description_command = Command(
+        [
+            PathJoinSubstitution([FindExecutable(name="xacro")]),
+            " ",
+            robot_description_file_substitution,
+            # Convert dict to list of parameters
+            *[arg for key, val in xacro_args.items() for arg in (f" {key}:=", val)],
+        ]
     )
+    if use_gazebo_bool:
+        # Gazebo only: Franka's 0.2 Nm joint Coulomb friction causes stick-slip vibrations of the wrist
+        # with bullet-featherstone (PD effort control, no integral). Real robot never reads this URDF's physics.
+        urdf = context.perform_substitution(robot_description_command)
+        robot_description = ParameterValue(
+            re.sub(r'friction="[^"]*"', 'friction="0.0"', urdf), value_type=str
+        )
+    else:
+        robot_description = ParameterValue(robot_description_command, value_type=str)
 
     robot_state_publisher_node = Node(
         package="robot_state_publisher",
@@ -259,7 +287,12 @@ def launch_setup(
         executable="rviz2",
         parameters=[{"use_sim_time": use_sim_time}],
         arguments=["--display-config", rviz_config_path],
-        condition=IfCondition(use_rviz),
+        # MoveIt opens its own RViz
+        condition=IfCondition(
+            PythonExpression(
+                ["'", use_rviz, "' == 'true' and '", use_moveit, "' != 'true'"]
+            )
+        ),
     )
 
     plotjuggler_node = Node(
@@ -277,6 +310,7 @@ def launch_setup(
         joint_state_publisher_node,
         rviz_node,
         plotjuggler_node,
+        moveit_launch,
     ]
 
 
@@ -286,7 +320,7 @@ def generate_launch_description():
             "robot_config_file",
             default_value=PathJoinSubstitution(
                 [
-                    FindPackageShare("prl_franka_run"),
+                    FindPackageShare("prl_franka_configuration"),
                     "config",
                     "robot_config.yaml",
                 ]
@@ -318,8 +352,8 @@ def generate_launch_description():
             "franka_controllers_setup",
             default_value=PathJoinSubstitution(
                 [
-                    FindPackageShare("prl_franka_control"),
-                    "config/arm",
+                    FindPackageShare("prl_franka_configuration"),
+                    "config",
                     "controller_setup.yaml",
                 ]
             ),
@@ -332,14 +366,9 @@ def generate_launch_description():
         ),
         DeclareLaunchArgument(
             "gz_world_path",
-            default_value=PathJoinSubstitution(
-                [
-                    FindPackageShare("prl_franka_description"),
-                    "worlds",
-                    "empty.sdf",
-                ]
-            ),
-            description="Path to Gazebo world SDF file.",
+            default_value="",
+            description="Gazebo world SDF. Empty: prl_franka_description/worlds/prl_franka.sdf "
+            + "(Franka's sensors world with bullet-featherstone physics).",
         ),
         DeclareLaunchArgument(
             "rviz_config_path",
@@ -422,6 +451,20 @@ def generate_launch_description():
             default_value="false",
             description="Whether to launch Gazebo in headless mode "
             + "(no GUI is launched, only physics server).",
+            choices=["true", "false"],
+        ),
+        DeclareLaunchArgument(
+            "activate_cameras",
+            default_value="false",
+            description="Turn on the fixed cameras: Gazebo streams in simulation, "
+            + "drivers (prl_franka_control/sensors.launch.py) on the real robot.",
+            choices=["true", "false"],
+        ),
+        DeclareLaunchArgument(
+            "use_moveit",
+            default_value="false",
+            description="Launch MoveIt (move_group + its RViz). Needs fr3_arm_controller active "
+            + "(prl_franka_configuration/config/controller_setup.yaml).",
             choices=["true", "false"],
         ),
         DeclareLaunchArgument(

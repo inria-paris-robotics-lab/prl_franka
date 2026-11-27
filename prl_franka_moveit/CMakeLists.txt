@@ -10,13 +10,6 @@ ament_target_dependencies(wait_for_joint_states rclcpp sensor_msgs)
 
 ament_package()
 
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/launch")
-  install(
-    DIRECTORY launch
-    DESTINATION share/${PROJECT_NAME}
-    PATTERN "setup_assistant.launch" EXCLUDE)
-endif()
-
-install(DIRECTORY config DESTINATION share/${PROJECT_NAME})
+install(DIRECTORY launch config DESTINATION share/${PROJECT_NAME})
 install(FILES .setup_assistant DESTINATION share/${PROJECT_NAME})
 install(TARGETS wait_for_joint_states DESTINATION lib/${PROJECT_NAME})
